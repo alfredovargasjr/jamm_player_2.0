@@ -41,7 +41,7 @@ class CreateRoom extends React.Component {
                 />
               </FormGroup>
             </Form>
-            <Link id="btn btn-secondary" to="/createroom">
+            <Link id="btn btn-secondary" to={`/room${location.hash}`}>
               <Button>Create</Button>
             </Link>
           </CardBody>

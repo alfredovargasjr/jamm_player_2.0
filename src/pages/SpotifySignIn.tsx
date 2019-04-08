@@ -1,5 +1,6 @@
 import querystring from 'querystring';
 import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { Button, Container, Jumbotron } from 'reactstrap';
 import styles from '../styles';
 
@@ -14,13 +15,20 @@ const generateRandomString = (length: number) => {
   return text;
 };
 
-interface SpotifyAuthProps {
-  redirect_uri: string;
+type RedirectTypes = 'create' | 'join';
+
+interface SearchParms {
+  redirect: RedirectTypes;
 }
 
-const SpotifySignIn: React.FunctionComponent<SpotifyAuthProps> = ({
-  redirect_uri,
-}) => {
+const SpotifySignIn: React.FunctionComponent<RouteComponentProps> = props => {
+  const searchParmObject = (querystring.parse(
+    props.location.search.slice(1)
+  ) as unknown) as SearchParms;
+  const redirectUri =
+    searchParmObject.redirect === 'create'
+      ? `${location.origin}/createroom`
+      : `${location.origin}/joinroom`;
   return (
     <Container style={{ padding: '30px' }}>
       <Jumbotron style={styles.jumbotron}>
@@ -32,10 +40,11 @@ const SpotifySignIn: React.FunctionComponent<SpotifyAuthProps> = ({
           <Button
             href={`https://accounts.spotify.com/authorize?${querystring.stringify(
               {
-                client_id: 'todo',
-                redirect_uri,
+                client_id: 'f18adfa22eb64b1b9a74ce823ca80b3b',
+                redirect_uri: redirectUri,
                 response_type: 'token',
-                scope: 'todo',
+                scope:
+                  'user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-collaborative',
                 state: generateRandomString(15),
               }
             )}`}
@@ -49,4 +58,4 @@ const SpotifySignIn: React.FunctionComponent<SpotifyAuthProps> = ({
   );
 };
 
-export default SpotifySignIn;
+export default withRouter(SpotifySignIn);

@@ -6,7 +6,11 @@ import Loading from '../components/Loading';
 
 const HomeRoute = React.lazy(() => import('../pages/Home'));
 
-const AnotherPageRoute = React.lazy(() => import('../pages/CreateRoom'));
+const CreateRoom = React.lazy(() => import('../pages/CreateRoom'));
+
+const SpotifySignIn = React.lazy(() => import('../pages/SpotifySignIn'));
+
+const Room = React.lazy(() => import('../pages/Room'));
 
 const PageNotFoundRoute = React.lazy(() => import('../pages/PageNotFound'));
 
@@ -14,7 +18,9 @@ const RoutePath = ({ location }: RouteComponentProps) => (
   <React.Suspense fallback={<Loading />}>
     <Switch key={location.key} location={location}>
       <Route exact={true} path="/" component={HomeRoute} />
-      <Route exact={true} path="/createroom" component={AnotherPageRoute} />
+      <Route exact={true} path="/createroom" component={CreateRoom} />
+      <Route exact={true} path="/login" component={SpotifySignIn} />
+      <Route exact={true} path="/room" component={Room} />
       <Route exact={true} path="/loading" component={Loading} />
       <Route component={PageNotFoundRoute} />
     </Switch>

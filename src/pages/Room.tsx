@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Alert,
   Button,
   Card,
   CardText,
@@ -9,9 +10,14 @@ import {
   Jumbotron,
   Row,
 } from 'reactstrap';
+import { getAuthObj } from '../AuthUtils';
 
-class Home extends React.Component {
+class Room extends React.Component {
   public render() {
+    const authObj = getAuthObj();
+    if (!authObj) {
+      return <Alert color="danger">You are not authorized!</Alert>;
+    }
     return (
       <div style={{ maxWidth: '1000px', margin: 'auto' }}>
         <Jumbotron style={styles.jumbotron}>
@@ -19,27 +25,10 @@ class Home extends React.Component {
             <b>Jamm.</b>
           </h1>
           <p style={{ textAlign: 'center', fontSize: '13px', color: 'white' }}>
-            A Collaborative Web Music Player powered by Spotify.
+            This is a room
           </p>
         </Jumbotron>
-        <Row style={styles.row}>
-          <Col sm="6" style={styles.col}>
-            <Card body={true} className="text-center">
-              <CardTitle>Create and Share a Room With Friends</CardTitle>
-              <Link id="btn btn-secondary" to="/login?redirect=create">
-                <Button style={styles.button}>Create</Button>
-              </Link>
-            </Card>
-          </Col>
-          <Col sm="6" style={styles.col}>
-            <Card body={true} className="text-center">
-              <CardTitle>Join a Room</CardTitle>
-              <Link id="btn btn-secondary" to="/login?redirect=join">
-                <Button style={styles.button}>Join</Button>
-              </Link>
-            </Card>
-          </Col>
-        </Row>
+        <Row style={styles.row} />
       </div>
     );
   }
@@ -67,4 +56,4 @@ const styles = {
   },
 };
 
-export default Home;
+export default Room;
