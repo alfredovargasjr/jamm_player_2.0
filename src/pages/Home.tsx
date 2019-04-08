@@ -24,7 +24,7 @@ class Home extends React.Component {
         </Jumbotron>
         <Row style={styles.row}>
           <Col sm="6" style={styles.col}>
-            <Card body className="text-center">
+            <Card body={true} className="text-center">
               <CardTitle>Create and Share a Room With Friends</CardTitle>
               <Link id="btn btn-secondary" to="/createroom">
                 <Button style={styles.button}>Create</Button>
@@ -32,7 +32,7 @@ class Home extends React.Component {
             </Card>
           </Col>
           <Col sm="6" style={styles.col}>
-            <Card body className="text-center">
+            <Card body={true} className="text-center">
               <CardTitle>Join a Room</CardTitle>
               <Link id="btn btn-secondary" to="/joinroom">
                 <Button style={styles.button}>Join</Button>
@@ -46,24 +46,24 @@ class Home extends React.Component {
 }
 
 const styles = {
-  row: {
-    marginRight: '0px',
-    marginLeft: '0px',
-    paddingTop: '15px',
+  button: {
+    width: '100%',
   },
   col: {
     paddingTop: '15px',
   },
   jumbotron: {
     backgroundColor: 'rgb(45, 45, 45)',
+    borderRadius: '0px',
     color: '#1db954',
-    width: '100%',
     marginBottom: '0px',
     padding: '20px',
-    borderRadius: '0px',
-  },
-  button: {
     width: '100%',
+  },
+  row: {
+    marginLeft: '0px',
+    marginRight: '0px',
+    paddingTop: '15px',
   },
 };
 
