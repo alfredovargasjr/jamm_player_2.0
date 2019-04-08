@@ -29,28 +29,18 @@ export default class NavBar extends React.Component<{}, InitialState> {
   public render() {
     return (
       <div>
-        <Navbar color="light" light={true} expand="md">
-          <Link to="/">
-            <NavbarBrand>TypeScript React BoilerPlate</NavbarBrand>
+        <Navbar color="dark" light={true} expand="md">
+          <Link to="/" style={styles.navbar}> 
+            <NavbarBrand>Jamm.</NavbarBrand>
           </Link>
-          <NavbarToggler onClick={() => this.ontoggle()} />
-          <Collapse isOpen={this.state.isOpen} navbar={true}>
-            <Nav className="ml-auto" navbar={true}>
-              <Link to="/anotherpage">
-                <NavItem>
-                  <NavLink>Another Page</NavLink>
-                </NavItem>
-              </Link>
-              <NavItem>
-                {/* Only use href here because we are linking outside */}
-                <NavLink href="https://github.com/reactstrap/reactstrap">
-                  ReactStrap GitHub
-                </NavLink>
-              </NavItem>
-            </Nav>
-          </Collapse>
         </Navbar>
       </div>
     );
+  }
+}
+
+const styles = {
+  navbar: {
+    color: "#ffffff"
   }
 }

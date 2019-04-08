@@ -3,7 +3,7 @@ import NavBar from './navigation/NavBar';
 import Routes from './navigation/Routes';
 
 const App: React.FunctionComponent = () => (
-  <div>
+  <div >
     <NavBar />
     <Routes />
   </div>

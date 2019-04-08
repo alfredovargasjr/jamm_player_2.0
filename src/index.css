@@ -3,3 +3,25 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+row {
+    margin-right: "0px";
+    margin-left: "0px";
+    padding-top: "15px";
+}
+
+col {
+    padding-top: "15px";
+}
+
+.jumbotron {
+  background-color: "rgb(45, 45, 45)" !important;
+  color: "#1db954" !important;
+  width: "100%";
+  margin-bottom: "0px";
+  border-radius: "0px";
+}
+
+.button {
+    width: "100%";
+}
