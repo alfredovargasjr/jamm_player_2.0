@@ -23,6 +23,7 @@ const RoutePath = ({ location }: RouteComponentProps) => (
       <Route exact={true} path="/createroom" component={CreateRoom} />
       <Route exact={true} path="/joinroom" component={JoinRoom} />
       <Route exact={true} path="/login" component={SpotifySignIn} />
+      <Route exact={true} path="/room/:code:" component={Room} />
       <Route exact={true} path="/room" component={Room} />
       <Route exact={true} path="/loading" component={Loading} />
       <Route component={PageNotFoundRoute} />

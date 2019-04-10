@@ -17,6 +17,9 @@ import {
 } from 'reactstrap';
 
 class CreateRoom extends React.Component {
+  public state = {
+    code: '',
+  };
   public render() {
     return (
       <Container style={{ maxWidth: '1000px', margin: 'auto' }}>
@@ -25,7 +28,7 @@ class CreateRoom extends React.Component {
           <CardBody>
             <Form>
               <FormGroup>
-                <Label for="roomName">Code</Label>
+                <Label for="code">Code</Label>
                 <Input
                   type="text"
                   name="name"
@@ -33,7 +36,10 @@ class CreateRoom extends React.Component {
                 />
               </FormGroup>
             </Form>
-            <Link id="btn btn-secondary" to={`/room${location.hash}`}>
+            <Link
+              id="btn btn-secondary"
+              to={`/room/${this.state.code}${location.hash}`}
+            >
               <Button>Join Room</Button>
             </Link>
           </CardBody>

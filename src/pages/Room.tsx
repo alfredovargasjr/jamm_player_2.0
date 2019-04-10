@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import {
   Alert,
   Button,
@@ -12,7 +12,7 @@ import {
 } from 'reactstrap';
 import { getAuthObj } from '../AuthUtils';
 
-class Room extends React.Component {
+class Room extends React.Component<RouteComponentProps> {
   public render() {
     const authObj = getAuthObj();
     if (!authObj) {
@@ -56,4 +56,4 @@ const styles = {
   },
 };
 
-export default Room;
+export default withRouter(Room);
