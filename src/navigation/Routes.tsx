@@ -8,6 +8,8 @@ const HomeRoute = React.lazy(() => import('../pages/Home'));
 
 const CreateRoom = React.lazy(() => import('../pages/CreateRoom'));
 
+const JoinRoom = React.lazy(() => import('../pages/JoinRoom'));
+
 const SpotifySignIn = React.lazy(() => import('../pages/SpotifySignIn'));
 
 const Room = React.lazy(() => import('../pages/Room'));
@@ -19,6 +21,7 @@ const RoutePath = ({ location }: RouteComponentProps) => (
     <Switch key={location.key} location={location}>
       <Route exact={true} path="/" component={HomeRoute} />
       <Route exact={true} path="/createroom" component={CreateRoom} />
+      <Route exact={true} path="/joinroom" component={JoinRoom} />
       <Route exact={true} path="/login" component={SpotifySignIn} />
       <Route exact={true} path="/room" component={Room} />
       <Route exact={true} path="/loading" component={Loading} />

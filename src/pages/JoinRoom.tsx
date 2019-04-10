@@ -21,28 +21,20 @@ class CreateRoom extends React.Component {
     return (
       <Container style={{ maxWidth: '1000px', margin: 'auto' }}>
         <Card>
-          <CardHeader tag="h3">Create a Room</CardHeader>
+          <CardHeader tag="h3">Join a Room</CardHeader>
           <CardBody>
             <Form>
               <FormGroup>
-                <Label for="roomName">Room Name</Label>
+                <Label for="roomName">Code</Label>
                 <Input
                   type="text"
                   name="name"
-                  placeholder="Enter a Room Name"
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label for="roomDescription">Room Description</Label>
-                <Input
-                  type="text"
-                  name="description"
-                  placeholder="Enter a Room Description"
+                  placeholder="Enter a code for the room"
                 />
               </FormGroup>
             </Form>
             <Link id="btn btn-secondary" to={`/room${location.hash}`}>
-              <Button>Create Room</Button>
+              <Button>Join Room</Button>
             </Link>
           </CardBody>
         </Card>
