@@ -2,6 +2,7 @@ import { request } from 'graphql-request';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Alert,
   Button,
   Card,
   CardBody,
@@ -17,12 +18,15 @@ import {
   Label,
   Row,
 } from 'reactstrap';
+
+import AlertNotification from '../components/AlertNotification';
 import Loading from '../components/Loading';
 import spotifyAPIServices from '../services/spotifyAPIServices';
-import { AnyARecord } from 'dns';
+import SpotifySignIn from './SpotifySignIn';
 
 interface CreateRoomState {
   accessToken: string;
+  alertNotification: AlertNotificationType;
   descriptionInput: InputForm;
   isLoading: boolean;
   nameInput: InputForm;
@@ -36,7 +40,13 @@ interface InputForm {
   value: string;
 }
 
-interface Hash_Args {
+interface AlertNotificationType {
+  visible: boolean;
+  color: string;
+  alertText: string;
+}
+
+interface HashArgs {
   access_token: string;
   expires_in: number;
   state: string;
@@ -48,6 +58,11 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
     super(props);
     this.state = {
       accessToken: '',
+      alertNotification: {
+        alertText: '',
+        color: '',
+        visible: false,
+      },
       descriptionInput: {
         errText: 'Must enter a room name.',
         isValid: true,
@@ -82,12 +97,33 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
   }
 
   public componentDidMount() {
-    const hashArgs: Hash_Args = this.parseHashBangArgs();
-    this.setState({ accessToken: hashArgs.access_token, tokenType: hashArgs.token_type });
+    const hashArgs: HashArgs = this.parseHashBangArgs();
+    this.setState({
+      accessToken: hashArgs.access_token,
+      tokenType: hashArgs.token_type,
+    });
   }
 
   public createRoom() {
-    console.log(this.state.nameInput.value, this.state.descriptionInput.value);
+    const response = spotifyAPIServices.getUser(
+      this.state.tokenType,
+      this.state.accessToken
+    );
+    response
+      .then(value => {
+        if (value) {
+          const response = spotifyAPIServices.createPlaylist(
+            this.state.tokenType,
+            this.state.accessToken,
+            this.state.nameInput.value,
+            this.state.descriptionInput.value,
+            value.id
+          );
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   public isValidInput(formName: string): boolean {
@@ -164,7 +200,7 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
             <Button
               onClick={() => {
                 if (this.validateInputs()) {
-                  console.log('all valid');
+                  this.createRoom();
                 } else {
                   console.log('not all valid');
                 }
@@ -173,9 +209,14 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
               Create Room
             </Button>
             {/* </Link> */}
+            <AlertNotification
+              visible={this.state.alertNotification.visible}
+              color={this.state.alertNotification.color}
+              alertText={this.state.alertNotification.alertText}
+            />
+            {this.state.isLoading ? <Loading /> : null}
           </CardBody>
         </Card>
-        {this.state.isLoading ? <Loading /> : null}
       </Container>
     );
   }
