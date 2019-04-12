@@ -124,3 +124,11 @@ async function addTrackToPlaylist(
   }
   return undefined;
 }
+
+export default {
+  addTrackToPlaylist,
+  createPlaylist,
+  getPlaylistTracks,
+  getUser,
+  searchTrack,
+};
