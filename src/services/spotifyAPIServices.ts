@@ -105,12 +105,11 @@ async function addTrackToPlaylist(
   trackUri: string,
   playlistId: string,
   userId: string
-) {
+): Promise<SpotifyAddTrackToPlaylistResponse.RootObject | undefined> {
   const uriEncoded = encodeURI(trackUri);
   const response = await fetch(
     `${SPOTIFY_API}/v1/users/${userId}/playlists/${playlistId}/tracks?uris=${uriEncoded}`,
     {
-      // const response = await fetch(`https://api.spotify.com/v1/users/${this.state.userData.id}/playlists/0LXTq08rGJWw6x2dURPs5a/tracks?uris=${uri}`, {
       headers: {
         Authorization: `${tokenType} ${token}`,
         'Content-Type': 'application/json',
@@ -118,6 +117,9 @@ async function addTrackToPlaylist(
       method: 'POST',
     }
   );
-  const json = await response.json();
-  console.log(json);
+  if (response.status === 200) {
+    const json = await response.json();
+    return json;
+  }
+  return undefined;
 }
