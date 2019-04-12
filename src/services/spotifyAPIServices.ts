@@ -1,11 +1,12 @@
 const SPOTIFY_API: string = 'https://api.spotify.com';
-// async function test() {
-//   const user = await getPlaylistTracks('a', 'b', '2', '2');
-//   if (user) {
-//     user.items[0].track.album
-//   }
 
-// }
+/**
+ *  Spotify API Services
+ *  - user needs to login to spotify on the client side to receive
+ *    a token type along with an access token provided by Spotify's
+ *    oAuth services.
+ */
+
 // Spotify API: call api to get a snapshot of the users profile
 async function getUser(
   tokenType: string,
