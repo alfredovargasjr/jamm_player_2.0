@@ -1,22 +1,41 @@
-import { request } from 'graphql-request';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import {
   Button,
   Card,
   CardBody,
   CardHeader,
-  CardTitle,
   Container,
   Form,
+  FormFeedback,
   FormGroup,
   Input,
-  Jumbotron,
   Label,
-  Row,
 } from 'reactstrap';
 
-class CreateRoom extends React.Component {
+interface CreateRoomState {
+  roomName: string;
+  roomDescription: string;
+  roomNameInvalid: boolean;
+}
+
+class CreateRoom extends React.Component<RouteComponentProps> {
+  public state: CreateRoomState = {
+    roomDescription: '',
+    roomName: '',
+    roomNameInvalid: false,
+  };
+  public onCreateRoomBtnClick = () => {
+    if (this.state.roomName !== '') {
+      // TODO: Send API request here
+
+      this.props.history.push(`/room${location.hash}`);
+    } else if (!this.state.roomName) {
+      // If the user clicks create a button before entering a room, display validation
+      this.setState({ roomNameInvalid: true });
+    }
+  };
+
   public render() {
     return (
       <Container style={{ maxWidth: '1000px', margin: 'auto' }}>
@@ -30,7 +49,17 @@ class CreateRoom extends React.Component {
                   type="text"
                   name="name"
                   placeholder="Enter a Room Name"
+                  value={this.state.roomName}
+                  onChange={e =>
+                    this.setState({
+                      roomName: e.target.value,
+                      roomNameInvalid: false,
+                    })
+                  }
+                  valid={this.state.roomName !== ''}
+                  invalid={this.state.roomNameInvalid}
                 />
+                <FormFeedback>Room Name cannot be empty.</FormFeedback>
               </FormGroup>
               <FormGroup>
                 <Label for="roomDescription">Room Description</Label>
@@ -41,9 +70,7 @@ class CreateRoom extends React.Component {
                 />
               </FormGroup>
             </Form>
-            <Link id="btn btn-secondary" to={`/room${location.hash}`}>
-              <Button>Create Room</Button>
-            </Link>
+            <Button onClick={this.onCreateRoomBtnClick}>Create Room</Button>
           </CardBody>
         </Card>
       </Container>
@@ -51,4 +78,4 @@ class CreateRoom extends React.Component {
   }
 }
 
-export default CreateRoom;
+export default withRouter(CreateRoom);
