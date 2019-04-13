@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Alert } from 'reactstrap';
 
-enum AlertTypes {
-  success,
-  danger,
-  warning,
+export interface AlertNotificationType {
+  visible: boolean;
+  color: string;
+  alertText: string;
 }
 
 interface AlertProps {

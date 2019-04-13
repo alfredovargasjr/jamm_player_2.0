@@ -16,15 +16,10 @@ import {
 } from 'reactstrap';
 
 import { getAuthObj } from '../AuthUtils';
-import AlertNotification from '../components/AlertNotification';
+import AlertNotification, { AlertNotificationType } from '../components/AlertNotification';
 import Loading from '../components/Loading';
 import spotifyAPIServices from '../services/spotifyAPIServices';
 
-interface AlertNotificationType {
-  visible: boolean;
-  color: string;
-  alertText: string;
-}
 interface CreateRoomState {
   alertNotification: AlertNotificationType;
   isLoading: boolean;
