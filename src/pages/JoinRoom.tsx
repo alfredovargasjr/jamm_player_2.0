@@ -1,25 +1,56 @@
-import { request } from 'graphql-request';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import {
   Button,
   Card,
   CardBody,
   CardHeader,
-  CardTitle,
   Container,
   Form,
+  FormFeedback,
   FormGroup,
   Input,
-  Jumbotron,
   Label,
-  Row,
 } from 'reactstrap';
 
-class CreateRoom extends React.Component {
-  public state = {
+interface JoinRoomState {
+  code: string;
+  codeFormFeedback: string;
+  codeInvalid: boolean;
+}
+class JoinRoom extends React.Component<RouteComponentProps> {
+  public state: JoinRoomState = {
     code: '',
+    codeFormFeedback: 'Code cannot be empty.',
+    codeInvalid: false,
   };
+  public isCodeValid = () => {
+    if (this.state.code === '') {
+      // If the user clicks create a button before entering a room, display validation
+      this.setState({
+        codeFormFeedback: 'Code cannot be empty.',
+        codeInvalid: true,
+      });
+      return false;
+    }
+    // TODO: Send API request here and validate the code
+    const failedValidaton = false;
+    if (failedValidaton) {
+      this.setState({ codeFormFeedback: 'Invalid code.', codeInvalid: true });
+      return false;
+    }
+
+    this.setState({ codeInvalid: false });
+
+    return true;
+  };
+
+  public onJoinRoomBtnClick = () => {
+    if (this.isCodeValid()) {
+      this.props.history.push(`/room/${this.state.code}${location.hash}`);
+    }
+  };
+
   public render() {
     return (
       <Container style={{ maxWidth: '1000px', margin: 'auto' }}>
@@ -31,17 +62,18 @@ class CreateRoom extends React.Component {
                 <Label for="code">Code</Label>
                 <Input
                   type="text"
-                  name="name"
-                  placeholder="Enter a code for the room"
+                  placeholder="Enter the code for the room"
+                  value={this.state.code}
+                  onChange={e =>
+                    this.setState({ code: e.target.value, codeInvalid: false })
+                  }
+                  valid={this.state.code !== ''}
+                  invalid={this.state.codeInvalid}
                 />
+                <FormFeedback>{this.state.codeFormFeedback}</FormFeedback>
               </FormGroup>
             </Form>
-            <Link
-              id="btn btn-secondary"
-              to={`/room/${this.state.code}${location.hash}`}
-            >
-              <Button>Join Room</Button>
-            </Link>
+            <Button onClick={this.onJoinRoomBtnClick}>Join Room</Button>
           </CardBody>
         </Card>
       </Container>
@@ -49,4 +81,4 @@ class CreateRoom extends React.Component {
   }
 }
 
-export default CreateRoom;
+export default withRouter(JoinRoom);
