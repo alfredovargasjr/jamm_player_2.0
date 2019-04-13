@@ -103,6 +103,7 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
         alertNotification.color = 'success';
         alertNotification.alertText = 'Room was created.';
         this.setState({ alertNotification });
+        this.props.history.push(`/room${location.hash}`);
       }
     } else {
       const alertNotification = { ...this.state.alertNotification };
@@ -184,7 +185,6 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
                 </FormFeedback>
               </FormGroup>
             </Form>
-            {/* <Link id="btn btn-secondary" to={`/room${location.hash}`}> */}
             <Button
               onClick={() => {
                 if (this.validateInputs()) {
@@ -194,7 +194,6 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
             >
               Create Room
             </Button>
-            {/* </Link> */}
             {this.state.alertNotification.visible ? (
               <AlertNotification
                 visible={this.state.alertNotification.visible}
