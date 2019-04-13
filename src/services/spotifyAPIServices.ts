@@ -1,3 +1,5 @@
+import { func } from 'prop-types';
+
 const SPOTIFY_API: string = 'https://api.spotify.com';
 
 /**
@@ -116,6 +118,54 @@ async function addTrackToPlaylist(
         'Content-Type': 'application/json',
       },
       method: 'POST',
+    }
+  );
+  if (response.status === 200) {
+    const json = await response.json();
+    return json;
+  }
+  return undefined;
+}
+
+// - API: follow a playlist, need to follow a collaboraive playlist to add a song
+async function followPlaylist(
+  tokenType: string,
+  token: string,
+  hostId: string,
+  playlistID: string,
+  sessionCode: string
+) {
+  const response = await fetch(
+    `${SPOTIFY_API}/v1/users/${hostId}/playlists/${sessionCode}/followers`,
+    {
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'PUT',
+    }
+  );
+  if (response.status === 200) {
+    const json = await response.json();
+    return json;
+  }
+  return undefined;
+}
+
+// - API: follow a playlist, need to follow a collaboraive playlist to add a song
+async function getPlaylist(
+  tokenType: string,
+  token: string,
+  hostID: string,
+  playlistID: string
+) {
+  const response = await fetch(
+    `${SPOTIFY_API}/v1/users/${hostID}/playlists/${playlistID}`,
+    {
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+        method: 'GET',
+      },
     }
   );
   if (response.status === 200) {
