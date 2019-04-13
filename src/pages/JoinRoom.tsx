@@ -12,18 +12,35 @@ import {
   Input,
   Label,
 } from 'reactstrap';
+import { AlertNotificationType } from 'src/components/AlertNotification';
+import { getAuthObj } from '../AuthUtils';
 
 interface JoinRoomState {
+  alertNotification: AlertNotificationType;
   code: string;
   codeFormFeedback: string;
   codeInvalid: boolean;
 }
 class JoinRoom extends React.Component<RouteComponentProps> {
   public state: JoinRoomState = {
+    alertNotification: {
+      alertText: '',
+      color: '',
+      visible: false,
+    },
     code: '',
     codeFormFeedback: 'Code cannot be empty.',
     codeInvalid: false,
   };
+
+  public componentDidMount() {
+    const hashArgs = getAuthObj();
+    if (hashArgs) {
+      localStorage.setItem('accessToken', hashArgs.access_token);
+      localStorage.setItem('tokenType', hashArgs.token_type);
+    }
+  }
+
   public isCodeValid = () => {
     if (this.state.code === '') {
       // If the user clicks create a button before entering a room, display validation

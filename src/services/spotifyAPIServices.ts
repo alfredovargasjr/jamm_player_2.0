@@ -45,7 +45,7 @@ async function createPlaylist(
     },
     method: 'POST',
   });
-  if (response.status === 200) {
+  if (response.status === 201) {
     const json = await response.json();
     return json;
   }
@@ -57,10 +57,10 @@ async function getPlaylistTracks(
   tokenType: string,
   token: string,
   userId: string,
-  sessionId: string
+  playlistId: string
 ): Promise<SpotifyGetPlaylistTracksResponse.RootObject | undefined> {
   const response = await fetch(
-    `${SPOTIFY_API}/v1/users/${userId}/playlists/${sessionId}/tracks`,
+    `${SPOTIFY_API}/v1/users/${userId}/playlists/${playlistId}/tracks`,
     {
       headers: {
         Authorization: `${tokenType} ${token}`,
@@ -124,3 +124,11 @@ async function addTrackToPlaylist(
   }
   return undefined;
 }
+
+export default {
+  addTrackToPlaylist,
+  createPlaylist,
+  getPlaylistTracks,
+  getUser,
+  searchTrack,
+};
