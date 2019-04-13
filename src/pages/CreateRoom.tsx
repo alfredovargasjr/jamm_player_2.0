@@ -58,6 +58,7 @@ class CreateRoom extends React.Component<RouteComponentProps> {
     const tokenType = localStorage.getItem('tokenType');
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken && tokenType) {
+      this.setState({ isLoading: true });
       const user = await spotifyAPIServices.getUser(tokenType, accessToken);
       if (user) {
         const createdPlaylist = await spotifyAPIServices.createPlaylist(
@@ -72,6 +73,7 @@ class CreateRoom extends React.Component<RouteComponentProps> {
           this.props.history.push(`/room${location.hash}`);
         }
       } else {
+        this.setState({ isLoading: false });
         const alertNotification = { ...this.state.alertNotification };
         alertNotification.visible = true;
         alertNotification.color = 'danger';
