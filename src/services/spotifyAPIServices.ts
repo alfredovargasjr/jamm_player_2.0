@@ -57,10 +57,10 @@ async function getPlaylistTracks(
   tokenType: string,
   token: string,
   userId: string,
-  sessionId: string
+  playlistId: string
 ): Promise<SpotifyGetPlaylistTracksResponse.RootObject | undefined> {
   const response = await fetch(
-    `${SPOTIFY_API}/v1/users/${userId}/playlists/${sessionId}/tracks`,
+    `${SPOTIFY_API}/v1/users/${userId}/playlists/${playlistId}/tracks`,
     {
       headers: {
         Authorization: `${tokenType} ${token}`,

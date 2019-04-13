@@ -1,147 +1,95 @@
-import { request } from 'graphql-request';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import {
   Alert,
   Button,
   Card,
   CardBody,
   CardHeader,
-  CardTitle,
   Container,
   Form,
   FormFeedback,
   FormGroup,
   FormText,
   Input,
-  Jumbotron,
   Label,
-  Row,
 } from 'reactstrap';
 
-import { Auth, getAuthObj } from '../AuthUtils';
+import { getAuthObj } from '../AuthUtils';
 import AlertNotification from '../components/AlertNotification';
 import Loading from '../components/Loading';
 import spotifyAPIServices from '../services/spotifyAPIServices';
-import SpotifySignIn from './SpotifySignIn';
-
-interface CreateRoomState {
-  accessToken: string;
-  alertNotification: AlertNotificationType;
-  descriptionInput: InputForm;
-  isLoading: boolean;
-  nameInput: InputForm;
-  tokenType: string;
-}
-
-interface InputForm {
-  errText: string;
-  isValid: boolean;
-  name: string;
-  value: string;
-}
 
 interface AlertNotificationType {
   visible: boolean;
   color: string;
   alertText: string;
 }
+interface CreateRoomState {
+  alertNotification: AlertNotificationType;
+  isLoading: boolean;
+  roomName: string;
+  roomDescription: string;
+  roomNameInvalid: boolean;
+}
 
-class CreateRoom extends React.Component<any, CreateRoomState> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      accessToken: '',
-      alertNotification: {
-        alertText: '',
-        color: '',
-        visible: false,
-      },
-      descriptionInput: {
-        errText: 'Must enter a room name.',
-        isValid: true,
-        name: 'descriptionInput',
-        value: '',
-      },
-      isLoading: false,
-      nameInput: {
-        errText: 'Must enter a room description.',
-        isValid: true,
-        name: 'nameInput',
-        value: '',
-      },
-      tokenType: '',
-    };
-  }
+class CreateRoom extends React.Component<RouteComponentProps> {
+  public state: CreateRoomState = {
+    alertNotification: {
+      alertText: '',
+      color: '',
+      visible: false,
+    },
+    isLoading: false,
+    roomDescription: '',
+    roomName: '',
+    roomNameInvalid: false,
+  };
 
   public componentDidMount() {
     const hashArgs = getAuthObj();
     if (hashArgs) {
-      this.setState({
-        accessToken: hashArgs.access_token,
-        tokenType: hashArgs.token_type,
-      });
+      localStorage.setItem('accessToken', hashArgs.access_token);
+      localStorage.setItem('tokenType', hashArgs.token_type);
     }
   }
 
   public async createRoom() {
-    const response = await spotifyAPIServices.getUser(
-      this.state.tokenType,
-      this.state.accessToken
-    );
-    if (response) {
-      const createdPlaylist = await spotifyAPIServices.createPlaylist(
-        this.state.tokenType,
-        this.state.accessToken,
-        this.state.nameInput.value,
-        this.state.descriptionInput.value,
-        response.id
-      );
-      if (createdPlaylist) {
+    const tokenType = localStorage.getItem('tokenType');
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken && tokenType) {
+      const user = await spotifyAPIServices.getUser(tokenType, accessToken);
+      if (user) {
+        const createdPlaylist = await spotifyAPIServices.createPlaylist(
+          tokenType,
+          accessToken,
+          this.state.roomName,
+          this.state.roomDescription,
+          user.id
+        );
+        if (createdPlaylist) {
+          localStorage.setItem('createdPlaylistId', createdPlaylist.id);
+          this.props.history.push(`/room${location.hash}`);
+        }
+      } else {
         const alertNotification = { ...this.state.alertNotification };
         alertNotification.visible = true;
-        alertNotification.color = 'success';
-        alertNotification.alertText = 'Room was created.';
+        alertNotification.color = 'danger';
+        alertNotification.alertText =
+          'Spotify session has expired. Return home to reconnect to Spotify.';
         this.setState({ alertNotification });
-        this.props.history.push(`/room${location.hash}`);
       }
-    } else {
-      const alertNotification = { ...this.state.alertNotification };
-      alertNotification.visible = true;
-      alertNotification.color = 'danger';
-      alertNotification.alertText =
-        'Spotify session has expired. Return home to reconnect to Spotify.';
-      this.setState({ alertNotification });
     }
   }
 
-  public isValidInput(formName: string): boolean {
-    switch (formName) {
-      case this.state.nameInput.name:
-        const nameInput = { ...this.state.nameInput };
-        nameInput.isValid = nameInput.value.length > 0;
-        this.setState({ nameInput });
-        return nameInput.isValid;
-      case this.state.descriptionInput.name:
-        const descriptionInput = { ...this.state.descriptionInput };
-        descriptionInput.isValid = descriptionInput.value.length > 0;
-        this.setState({ descriptionInput });
-        return descriptionInput.isValid;
-      default:
+  public onCreateRoomBtnClick = () => {
+    if (this.state.roomName !== '') {
+      this.createRoom();
+    } else if (!this.state.roomName) {
+      // If the user clicks create a button before entering a room, display validation
+      this.setState({ roomNameInvalid: true });
     }
-    return true;
-  }
-
-  public validateInputs(): boolean {
-    const inputForms = [this.state.nameInput, this.state.descriptionInput];
-    let areAllValid = true;
-    inputForms.forEach(input => {
-      if (!this.isValidInput(input.name)) {
-        areAllValid = false;
-      }
-    });
-    return areAllValid;
-  }
+  };
 
   public render() {
     return (
@@ -153,47 +101,36 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
               <FormGroup>
                 <Label for="roomName">Room Name</Label>
                 <Input
-                  invalid={!this.state.nameInput.isValid}
                   type="text"
                   name="name"
                   placeholder="Enter a Room Name"
-                  onChange={e => {
-                    const nameInput = { ...this.state.nameInput };
-                    nameInput.value = e.target.value;
-                    nameInput.isValid = e.target.value.length > 0;
-                    this.setState({ nameInput });
-                  }}
+                  value={this.state.roomName}
+                  onChange={e =>
+                    this.setState({
+                      roomName: e.target.value,
+                      roomNameInvalid: false,
+                    })
+                  }
+                  valid={this.state.roomName !== ''}
+                  invalid={this.state.roomNameInvalid}
                 />
-                <FormFeedback>{this.state.nameInput.errText}</FormFeedback>
+                <FormFeedback>Room name can not be empty.</FormFeedback>
               </FormGroup>
               <FormGroup>
                 <Label for="roomDescription">Room Description</Label>
                 <Input
-                  invalid={!this.state.descriptionInput.isValid}
                   type="text"
                   name="description"
                   placeholder="Enter a Room Description"
                   onChange={e => {
-                    const descriptionInput = { ...this.state.descriptionInput };
-                    descriptionInput.value = e.target.value;
-                    descriptionInput.isValid = e.target.value.length > 0;
-                    this.setState({ descriptionInput });
+                    this.setState({
+                      roomDescription: e.target.value,
+                    });
                   }}
                 />
-                <FormFeedback>
-                  {this.state.descriptionInput.errText}
-                </FormFeedback>
               </FormGroup>
             </Form>
-            <Button
-              onClick={() => {
-                if (this.validateInputs()) {
-                  this.createRoom();
-                }
-              }}
-            >
-              Create Room
-            </Button>
+            <Button onClick={this.onCreateRoomBtnClick}>Create Room</Button>
             {this.state.alertNotification.visible ? (
               <AlertNotification
                 visible={this.state.alertNotification.visible}
@@ -209,4 +146,4 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
   }
 }
 
-export default CreateRoom;
+export default withRouter(CreateRoom);
