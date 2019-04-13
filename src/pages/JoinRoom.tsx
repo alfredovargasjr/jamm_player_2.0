@@ -12,8 +12,8 @@ import {
   Input,
   Label,
 } from 'reactstrap';
-import { getAuthObj } from 'src/AuthUtils';
 import { AlertNotificationType } from 'src/components/AlertNotification';
+import { getAuthObj } from '../AuthUtils';
 
 interface JoinRoomState {
   alertNotification: AlertNotificationType;
