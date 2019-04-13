@@ -1,6 +1,6 @@
 import querystring from 'querystring';
 
-interface Auth {
+export interface Auth {
   access_token: string;
   expires_in: string;
   state: string;

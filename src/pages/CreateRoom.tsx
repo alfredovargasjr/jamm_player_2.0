@@ -19,6 +19,7 @@ import {
   Row,
 } from 'reactstrap';
 
+import { Auth, getAuthObj } from '../AuthUtils';
 import AlertNotification from '../components/AlertNotification';
 import Loading from '../components/Loading';
 import spotifyAPIServices from '../services/spotifyAPIServices';
@@ -44,13 +45,6 @@ interface AlertNotificationType {
   visible: boolean;
   color: string;
   alertText: string;
-}
-
-interface HashArgs {
-  access_token: string;
-  expires_in: number;
-  state: string;
-  token_type: string;
 }
 
 class CreateRoom extends React.Component<any, CreateRoomState> {
@@ -80,64 +74,44 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
     };
   }
 
-  public parseHashBangArgs() {
-    const aURL = window.location.href;
-    const vars: any = {};
-    const hashes = aURL.slice(aURL.indexOf('#') + 1).split('&');
-    // tslint:disable-next-line:forin
-    for (const item in hashes) {
-      const hash = hashes[item].split('=');
-      if (hash.length > 1) {
-        vars[hash[0]] = hash[1];
-      } else {
-        vars[hash[0]] = null;
-      }
-    }
-    return vars;
-  }
-
   public componentDidMount() {
-    const hashArgs: HashArgs = this.parseHashBangArgs();
-    this.setState({
-      accessToken: hashArgs.access_token,
-      tokenType: hashArgs.token_type,
-    });
+    const hashArgs = getAuthObj();
+    if (hashArgs) {
+      this.setState({
+        accessToken: hashArgs.access_token,
+        tokenType: hashArgs.token_type,
+      });
+    }
   }
 
-  public createRoom() {
-    const response = spotifyAPIServices.getUser(
+  public async createRoom() {
+    const response = await spotifyAPIServices.getUser(
       this.state.tokenType,
       this.state.accessToken
     );
-    response
-      .then(value => {
-        if (value) {
-          const playlist = spotifyAPIServices.createPlaylist(
-            this.state.tokenType,
-            this.state.accessToken,
-            this.state.nameInput.value,
-            this.state.descriptionInput.value,
-            value.id
-          );
-          playlist.then(value => {
-            if (value) {
-              const alertNotification = { ...this.state.alertNotification };
-              alertNotification.visible = true;
-              alertNotification.color = 'success';
-              alertNotification.alertText = 'Room was created.';
-              this.setState({ alertNotification });
-            }
-          });
-        }
-      })
-      .catch(err => {
+    if (response) {
+      const createdPlaylist = await spotifyAPIServices.createPlaylist(
+        this.state.tokenType,
+        this.state.accessToken,
+        this.state.nameInput.value,
+        this.state.descriptionInput.value,
+        response.id
+      );
+      if (createdPlaylist) {
         const alertNotification = { ...this.state.alertNotification };
         alertNotification.visible = true;
-        alertNotification.color = 'danger';
-        alertNotification.alertText =
-          'Spotify session has expired. Return home to reconnect to Spotify.';
+        alertNotification.color = 'success';
+        alertNotification.alertText = 'Room was created.';
         this.setState({ alertNotification });
-      });
+      }
+    } else {
+      const alertNotification = { ...this.state.alertNotification };
+      alertNotification.visible = true;
+      alertNotification.color = 'danger';
+      alertNotification.alertText =
+        'Spotify session has expired. Return home to reconnect to Spotify.';
+      this.setState({ alertNotification });
+    }
   }
 
   public isValidInput(formName: string): boolean {
