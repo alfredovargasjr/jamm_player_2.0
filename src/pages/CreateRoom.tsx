@@ -112,17 +112,31 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
     response
       .then(value => {
         if (value) {
-          const response = spotifyAPIServices.createPlaylist(
+          const playlist = spotifyAPIServices.createPlaylist(
             this.state.tokenType,
             this.state.accessToken,
             this.state.nameInput.value,
             this.state.descriptionInput.value,
             value.id
           );
+          playlist.then(value => {
+            if (value) {
+              const alertNotification = { ...this.state.alertNotification };
+              alertNotification.visible = true;
+              alertNotification.color = 'success';
+              alertNotification.alertText = 'Room was created.';
+              this.setState({ alertNotification });
+            }
+          });
         }
       })
       .catch(err => {
-        console.log(err);
+        const alertNotification = { ...this.state.alertNotification };
+        alertNotification.visible = true;
+        alertNotification.color = 'danger';
+        alertNotification.alertText =
+          'Spotify session has expired. Return home to reconnect to Spotify.';
+        this.setState({ alertNotification });
       });
   }
 
@@ -201,19 +215,19 @@ class CreateRoom extends React.Component<any, CreateRoomState> {
               onClick={() => {
                 if (this.validateInputs()) {
                   this.createRoom();
-                } else {
-                  console.log('not all valid');
                 }
               }}
             >
               Create Room
             </Button>
             {/* </Link> */}
-            <AlertNotification
-              visible={this.state.alertNotification.visible}
-              color={this.state.alertNotification.color}
-              alertText={this.state.alertNotification.alertText}
-            />
+            {this.state.alertNotification.visible ? (
+              <AlertNotification
+                visible={this.state.alertNotification.visible}
+                color={this.state.alertNotification.color}
+                alertText={this.state.alertNotification.alertText}
+              />
+            ) : null}
             {this.state.isLoading ? <Loading /> : null}
           </CardBody>
         </Card>

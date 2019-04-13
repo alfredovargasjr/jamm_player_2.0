@@ -45,7 +45,7 @@ async function createPlaylist(
     },
     method: 'POST',
   });
-  if (response.status === 200) {
+  if (response.status === 201) {
     const json = await response.json();
     return json;
   }
