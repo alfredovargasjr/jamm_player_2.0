@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { withApollo, WithApolloClient } from 'react-apollo';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import {
   Button,
@@ -12,19 +13,62 @@ import {
   Input,
   Label,
 } from 'reactstrap';
+import { AlertNotificationType } from 'src/components/AlertNotification';
+import { getAuthObj } from '../AuthUtils';
+import {
+  GetSessionDocument,
+  GetSessionQuery,
+  GetSessionQueryVariables,
+} from '../generated/graphql';
 
 interface JoinRoomState {
+  alertNotification: AlertNotificationType;
   code: string;
   codeFormFeedback: string;
   codeInvalid: boolean;
 }
-class JoinRoom extends React.Component<RouteComponentProps> {
+
+type JoinRoomPropsInternal = WithApolloClient<RouteComponentProps>;
+
+class JoinRoom extends React.Component<JoinRoomPropsInternal> {
   public state: JoinRoomState = {
+    alertNotification: {
+      alertText: '',
+      color: '',
+      visible: false,
+    },
     code: '',
     codeFormFeedback: 'Code cannot be empty.',
     codeInvalid: false,
   };
-  public isCodeValid = () => {
+
+  public componentDidMount() {
+    const hashArgs = getAuthObj();
+    if (hashArgs) {
+      localStorage.setItem('accessToken', hashArgs.access_token);
+      localStorage.setItem('tokenType', hashArgs.token_type);
+    }
+  }
+
+  public async getRoom(): Promise<boolean> {
+    try {
+      const data = await this.props.client.query<
+        GetSessionQuery,
+        GetSessionQueryVariables
+      >({
+        query: GetSessionDocument,
+        variables: { shortCode: this.state.code },
+      });
+      if (data.data.Session) {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+    return false;
+  }
+
+  public isCodeValid = async () => {
     if (this.state.code === '') {
       // If the user clicks create a button before entering a room, display validation
       this.setState({
@@ -33,20 +77,18 @@ class JoinRoom extends React.Component<RouteComponentProps> {
       });
       return false;
     }
-    // TODO: Send API request here and validate the code
-    const failedValidaton = false;
-    if (failedValidaton) {
+    // GraphQL api
+    const exisitingRoom = await this.getRoom();
+    if (!exisitingRoom) {
       this.setState({ codeFormFeedback: 'Invalid code.', codeInvalid: true });
       return false;
     }
-
     this.setState({ codeInvalid: false });
-
     return true;
   };
 
-  public onJoinRoomBtnClick = () => {
-    if (this.isCodeValid()) {
+  public onJoinRoomBtnClick = async () => {
+    if (await this.isCodeValid()) {
       this.props.history.push(`/room/${this.state.code}${location.hash}`);
     }
   };
@@ -62,7 +104,7 @@ class JoinRoom extends React.Component<RouteComponentProps> {
                 <Label for="code">Code</Label>
                 <Input
                   type="text"
-                  placeholder="Enter the code for the room"
+                  placeholder="Enter the code for the room (ex. A6e7)"
                   value={this.state.code}
                   onChange={e =>
                     this.setState({ code: e.target.value, codeInvalid: false })
@@ -81,4 +123,4 @@ class JoinRoom extends React.Component<RouteComponentProps> {
   }
 }
 
-export default withRouter(JoinRoom);
+export default withRouter(withApollo(JoinRoom));

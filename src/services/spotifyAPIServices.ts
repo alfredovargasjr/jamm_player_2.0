@@ -1,3 +1,5 @@
+import { func } from 'prop-types';
+
 const SPOTIFY_API: string = 'https://api.spotify.com';
 
 /**
@@ -45,7 +47,7 @@ async function createPlaylist(
     },
     method: 'POST',
   });
-  if (response.status === 200) {
+  if (response.status === 201) {
     const json = await response.json();
     return json;
   }
@@ -57,10 +59,10 @@ async function getPlaylistTracks(
   tokenType: string,
   token: string,
   userId: string,
-  sessionId: string
+  playlistId: string
 ): Promise<SpotifyGetPlaylistTracksResponse.RootObject | undefined> {
   const response = await fetch(
-    `${SPOTIFY_API}/v1/users/${userId}/playlists/${sessionId}/tracks`,
+    `${SPOTIFY_API}/v1/users/${userId}/playlists/${playlistId}/tracks`,
     {
       headers: {
         Authorization: `${tokenType} ${token}`,
@@ -124,3 +126,59 @@ async function addTrackToPlaylist(
   }
   return undefined;
 }
+
+// - API: follow a playlist, need to follow a collaboraive playlist to add a song
+async function followPlaylist(
+  tokenType: string,
+  token: string,
+  hostId: string,
+  playlistId: string
+) {
+  const response = await fetch(
+    `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}/followers`,
+    {
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'PUT',
+    }
+  );
+  if (response.status === 200) {
+    const json = await response.json();
+    return json;
+  }
+  return undefined;
+}
+
+// - API: follow a playlist, need to follow a collaboraive playlist to add a song
+async function getPlaylist(
+  tokenType: string,
+  token: string,
+  hostId: string,
+  playlistId: string
+) {
+  const response = await fetch(
+    `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}`,
+    {
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+        method: 'GET',
+      },
+    }
+  );
+  if (response.status === 200) {
+    const json = await response.json();
+    return json;
+  }
+  return undefined;
+}
+export default {
+  addTrackToPlaylist,
+  createPlaylist,
+  followPlaylist,
+  getPlaylist,
+  getPlaylistTracks,
+  getUser,
+  searchTrack,
+};
