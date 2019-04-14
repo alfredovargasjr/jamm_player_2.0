@@ -1,3 +1,5 @@
+import { func } from 'prop-types';
+
 const SPOTIFY_API: string = 'https://api.spotify.com';
 
 /**
@@ -125,9 +127,57 @@ async function addTrackToPlaylist(
   return undefined;
 }
 
+// - API: follow a playlist, need to follow a collaboraive playlist to add a song
+async function followPlaylist(
+  tokenType: string,
+  token: string,
+  hostId: string,
+  playlistId: string
+) {
+  const response = await fetch(
+    `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}/followers`,
+    {
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'PUT',
+    }
+  );
+  if (response.status === 200) {
+    const json = await response.json();
+    return json;
+  }
+  return undefined;
+}
+
+// - API: follow a playlist, need to follow a collaboraive playlist to add a song
+async function getPlaylist(
+  tokenType: string,
+  token: string,
+  hostId: string,
+  playlistId: string
+) {
+  const response = await fetch(
+    `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}`,
+    {
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+        method: 'GET',
+      },
+    }
+  );
+  if (response.status === 200) {
+    const json = await response.json();
+    return json;
+  }
+  return undefined;
+}
 export default {
   addTrackToPlaylist,
   createPlaylist,
+  followPlaylist,
+  getPlaylist,
   getPlaylistTracks,
   getUser,
   searchTrack,

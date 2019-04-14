@@ -15,9 +15,21 @@ import {
   Label,
 } from 'reactstrap';
 
-import { getAuthObj } from '../AuthUtils';
-import AlertNotification, { AlertNotificationType } from '../components/AlertNotification';
+import {
+  ApolloConsumerProps,
+  withApollo,
+  WithApolloClient,
+} from 'react-apollo';
+import { generateRandomString, getAuthObj } from '../AuthUtils';
+import AlertNotification, {
+  AlertNotificationType,
+} from '../components/AlertNotification';
 import Loading from '../components/Loading';
+import {
+  CreateSessionMutation,
+  CreateSessionMutationVariables,
+} from '../generated/graphql';
+import { createSession } from '../graphQL/mutations';
 import spotifyAPIServices from '../services/spotifyAPIServices';
 
 interface CreateRoomState {
@@ -28,7 +40,9 @@ interface CreateRoomState {
   roomNameInvalid: boolean;
 }
 
-class CreateRoom extends React.Component<RouteComponentProps> {
+type CreateRoomPropsInternal = WithApolloClient<RouteComponentProps>;
+
+class CreateRoom extends React.Component<CreateRoomPropsInternal> {
   public state: CreateRoomState = {
     alertNotification: {
       alertText: '',
@@ -65,23 +79,46 @@ class CreateRoom extends React.Component<RouteComponentProps> {
         );
         if (createdPlaylist) {
           localStorage.setItem('createdPlaylistId', createdPlaylist.id);
-          this.props.history.push(`/room${location.hash}`);
+          // GRAPHQL CREATE ROOM
+          const short = generateRandomString(4);
+          try {
+            const data = await this.props.client.mutate<
+              CreateSessionMutation,
+              CreateSessionMutationVariables
+            >({
+              mutation: createSession,
+              variables: { sessionID: createdPlaylist.id, shortCode: short },
+            });
+            if (data.data.createSession) {
+              localStorage.setItem(
+                'graphSessionShortCode',
+                data.data.createSession.shortCode
+              );
+              this.props.history.push(`/room${location.hash}`);
+            }
+          } catch (e) {
+            const alertNotification = { ...this.state.alertNotification };
+            alertNotification.visible = true;
+            alertNotification.color = 'danger';
+            alertNotification.alertText = e.message;
+            this.setState({ alertNotification });
+          }
         }
-      } else {
-        this.setState({ isLoading: false });
-        const alertNotification = { ...this.state.alertNotification };
-        alertNotification.visible = true;
-        alertNotification.color = 'danger';
-        alertNotification.alertText =
-          'Spotify session has expired. Return home to reconnect to Spotify.';
-        this.setState({ alertNotification });
       }
+    } else {
+      this.setState({ isLoading: false });
+      const alertNotification = { ...this.state.alertNotification };
+      alertNotification.visible = true;
+      alertNotification.color = 'danger';
+      alertNotification.alertText =
+        'Spotify session has expired. Return home to reconnect to Spotify.';
+      this.setState({ alertNotification });
     }
   }
 
-  public onCreateRoomBtnClick = () => {
+  public onCreateRoomBtnClick = async () => {
     if (this.state.roomName !== '') {
-      this.createRoom();
+      await this.createRoom();
     } else if (!this.state.roomName) {
       // If the user clicks create a button before entering a room, display validation
       this.setState({ roomNameInvalid: true });
@@ -127,7 +164,9 @@ class CreateRoom extends React.Component<RouteComponentProps> {
                 />
               </FormGroup>
             </Form>
-            <Button onClick={this.onCreateRoomBtnClick}>Create Room</Button>
+            <Button onClick={() => this.onCreateRoomBtnClick()}>
+              Create Room
+            </Button>
             {this.state.alertNotification.visible ? (
               <AlertNotification
                 visible={this.state.alertNotification.visible}
@@ -143,4 +182,4 @@ class CreateRoom extends React.Component<RouteComponentProps> {
   }
 }
 
-export default withRouter(CreateRoom);
+export default withRouter(withApollo(CreateRoom));

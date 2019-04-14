@@ -2,18 +2,8 @@ import querystring from 'querystring';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Button, Container, Jumbotron } from 'reactstrap';
+import { generateRandomString } from '../AuthUtils';
 import styles from '../styles';
-
-const generateRandomString = (length: number) => {
-  let text = '';
-  const possible =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for (let i = 0; i < length; i += 1) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-};
 
 type RedirectTypes = 'create' | 'join';
 
