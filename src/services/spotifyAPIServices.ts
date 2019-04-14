@@ -47,7 +47,7 @@ async function createPlaylist(
     },
     method: 'POST',
   });
-  if (response.status === 200) {
+  if (response.status === 201) {
     const json = await response.json();
     return json;
   }
@@ -59,10 +59,10 @@ async function getPlaylistTracks(
   tokenType: string,
   token: string,
   userId: string,
-  sessionId: string
+  playlistId: string
 ): Promise<SpotifyGetPlaylistTracksResponse.RootObject | undefined> {
   const response = await fetch(
-    `${SPOTIFY_API}/v1/users/${userId}/playlists/${sessionId}/tracks`,
+    `${SPOTIFY_API}/v1/users/${userId}/playlists/${playlistId}/tracks`,
     {
       headers: {
         Authorization: `${tokenType} ${token}`,
@@ -132,11 +132,10 @@ async function followPlaylist(
   tokenType: string,
   token: string,
   hostId: string,
-  playlistID: string,
-  sessionCode: string
+  playlistId: string
 ) {
   const response = await fetch(
-    `${SPOTIFY_API}/v1/users/${hostId}/playlists/${sessionCode}/followers`,
+    `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}/followers`,
     {
       headers: {
         Authorization: `${tokenType} ${token}`,
@@ -156,11 +155,11 @@ async function followPlaylist(
 async function getPlaylist(
   tokenType: string,
   token: string,
-  hostID: string,
-  playlistID: string
+  hostId: string,
+  playlistId: string
 ) {
   const response = await fetch(
-    `${SPOTIFY_API}/v1/users/${hostID}/playlists/${playlistID}`,
+    `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}`,
     {
       headers: {
         Authorization: `${tokenType} ${token}`,
@@ -174,3 +173,12 @@ async function getPlaylist(
   }
   return undefined;
 }
+export default {
+  addTrackToPlaylist,
+  createPlaylist,
+  followPlaylist,
+  getPlaylist,
+  getPlaylistTracks,
+  getUser,
+  searchTrack,
+};

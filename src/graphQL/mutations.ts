@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-const deleteTrackRequest = gql`
+export const deleteTrackRequest = gql`
   mutation deleteTrackRequest($graphID: ID!) {
     deleteTracks(id: $graphID) {
       id
@@ -9,15 +9,17 @@ const deleteTrackRequest = gql`
   }
 `;
 
-const createSession = gql`
-  mutation createSession($sessionID: String!) {
-    createSession(sessionID: $sessionID) {
+export const createSession = gql`
+  mutation createSession($sessionID: String!, $shortCode: String!) {
+    createSession(sessionID: $sessionID, shortCode: $shortCode) {
       id
+      shortCode
+      sessionID
     }
   }
 `;
 
-const addTrackRequest = gql`
+export const addTrackRequest = gql`
   mutation createTrack($trackID: String!, $sessionGID: ID!) {
     createTracks(trackID: $trackID, sessionId: $sessionGID) {
       id

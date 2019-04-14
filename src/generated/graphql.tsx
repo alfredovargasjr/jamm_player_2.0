@@ -31,7 +31,7 @@ export type CreateFile = {
 
 export type CreateSession = {
   sessionID: Scalars['String'];
-  shortCode?: Maybe<Scalars['String']>;
+  shortCode: Scalars['String'];
   tracksesIds?: Maybe<Array<Scalars['ID']>>;
   trackses?: Maybe<Array<SessiontracksesTracks>>;
 };
@@ -515,7 +515,7 @@ export type MutationCreateFileArgs = {
 
 export type MutationCreateSessionArgs = {
   sessionID: Scalars['String'];
-  shortCode?: Maybe<Scalars['String']>;
+  shortCode: Scalars['String'];
   tracksesIds?: Maybe<Array<Scalars['ID']>>;
   trackses?: Maybe<Array<SessiontracksesTracks>>;
 };
@@ -735,7 +735,7 @@ export type RemoveFromSessionOnTracksPayload = {
 export type Session = Node & {
   id: Scalars['ID'];
   sessionID: Scalars['String'];
-  shortCode?: Maybe<Scalars['String']>;
+  shortCode: Scalars['String'];
   trackses?: Maybe<Array<Tracks>>;
   /** Meta information about the query. */
   _tracksesMeta: _QueryMeta;
@@ -864,7 +864,7 @@ export enum SessionOrderBy {
 export type SessionPreviousValues = {
   id: Scalars['ID'];
   sessionID: Scalars['String'];
-  shortCode?: Maybe<Scalars['String']>;
+  shortCode: Scalars['String'];
 };
 
 export type SessionSubscriptionFilter = {
@@ -1090,7 +1090,7 @@ export type TracksPreviousValues = {
 
 export type TrackssessionSession = {
   sessionID: Scalars['String'];
-  shortCode?: Maybe<Scalars['String']>;
+  shortCode: Scalars['String'];
   tracksesIds?: Maybe<Array<Scalars['ID']>>;
   trackses?: Maybe<Array<SessiontracksesTracks>>;
 };
@@ -1379,10 +1379,13 @@ export type DeleteTrackRequestMutation = { __typename?: 'Mutation' } & {
 
 export type CreateSessionMutationVariables = {
   sessionID: Scalars['String'];
+  shortCode: Scalars['String'];
 };
 
 export type CreateSessionMutation = { __typename?: 'Mutation' } & {
-  createSession: Maybe<{ __typename?: 'Session' } & Pick<Session, 'id'>>;
+  createSession: Maybe<
+    { __typename?: 'Session' } & Pick<Session, 'id' | 'shortCode' | 'sessionID'>
+  >;
 };
 
 export type CreateTrackMutationVariables = {
@@ -1397,7 +1400,7 @@ export type CreateTrackMutation = { __typename?: 'Mutation' } & {
 };
 
 export type GetSessionQueryVariables = {
-  graphID: Scalars['ID'];
+  shortCode: Scalars['String'];
 };
 
 export type GetSessionQuery = { __typename?: 'Query' } & {
@@ -1472,9 +1475,11 @@ export function withDeleteTrackRequest<TProps, TChildProps = {}>(
   >(DeleteTrackRequestDocument, operationOptions);
 }
 export const CreateSessionDocument = gql`
-  mutation createSession($sessionID: String!) {
-    createSession(sessionID: $sessionID) {
+  mutation createSession($sessionID: String!, $shortCode: String!) {
+    createSession(sessionID: $sessionID, shortCode: $shortCode) {
       id
+      shortCode
+      sessionID
     }
   }
 `;
@@ -1573,8 +1578,8 @@ export function withCreateTrack<TProps, TChildProps = {}>(
   >(CreateTrackDocument, operationOptions);
 }
 export const GetSessionDocument = gql`
-  query getSession($graphID: ID!) {
-    Session(id: $graphID) {
+  query getSession($shortCode: String!) {
+    Session(shortCode: $shortCode) {
       id
       trackses {
         trackID

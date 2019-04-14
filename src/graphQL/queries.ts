@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 const getSession = gql`
-  query getSession($graphID: ID!) {
-    Session(id: $graphID) {
+  query getSession($shortCode: String!) {
+    Session(shortCode: $shortCode) {
       id
       trackses {
         trackID
