@@ -22,16 +22,30 @@ class Room extends React.Component<RouteComponentProps> {
     test: false,
     value: '',
     searchResults: [],
+    name: '',
+    typing: false,
+    typingTimeout: 0,
   };
 
   public handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (this.state.typingTimeout) {
+      clearTimeout(this.state.typingTimeout);
+    }
+
     this.setState({
-      test: true,
+      typing: false,
+      typingTimeout: setTimeout(() => {
+        // TODO: Spotify API request
+        this.setState({
+          test: true,
+        });
+      }, 3000),
       value: e.currentTarget.value,
     });
     console.log(this.state);
   }
 
+  // TODO: Request search from Spotify API and display searches
   public displaySearch(test: boolean) {
     if (test) {
       return <Track />;
@@ -39,27 +53,12 @@ class Room extends React.Component<RouteComponentProps> {
     return null;
   }
 
-  // public displayTracks(
-  //   bool: boolean,
-  //   tracks,
-  //   handleTrackClick,
-  //   clickable: boolean
-  // ) {
-  //   console.log('does this appear in displayTracks?', handleTrackClick);
-  //   const tracksDisplay = [];
-  //   if (bool) {
-  //     for (var e in tracks) {
-  //       tracksDisplay.push(
-  //         <Track
-  //           onTrackClick={handleTrackClick}
-  //           trackInfo={tracks[e]}
-  //           clickable={clickable}
-  //         />
-  //       );
-  //     }
-  //   }
-  //   return tracksDisplay;
-  // }
+  // TODO: Get list of suggestions and display suggestions
+  public displaySuggestions() {
+    return <Track />;
+  }
+
+  // TODO: Retrieve user and session code to display
 
   public render() {
     const authObj = getAuthObj();
@@ -90,48 +89,62 @@ class Room extends React.Component<RouteComponentProps> {
             </Row>
           </div>
         </div>
-        <div style={{ backgroundColor: '#d5d5d5' }}>
-          <div
-            style={{
-              maxWidth: '1000px',
-              margin: 'auto',
-            }}
-          >
-            <div>
-              <Form>
-                <FormGroup
-                  style={{
-                    padding: '30px 0 0 0',
-                    width: '80%',
-                    margin: 'auto',
-                  }}
-                >
-                  <Input
-                    name="song"
-                    id="songSearch"
-                    placeholder="Search"
-                    value={this.state.value}
-                    onChange={e => this.handleInputChange(e)}
-                  />
-                </FormGroup>
-              </Form>
-              <div style={{ width: '80%', margin: 'auto' }}>
-                {this.displaySearch(this.state.test)}
+        <Row style={{ backgroundColor: '#d5d5d5', margin: '0' }}>
+          <Col sm={9} md={9} lg={9} style={{ padding: '0' }}>
+            <div
+              style={{
+                width: '90%',
+                margin: 'auto',
+              }}
+            >
+              <div>
+                <Form>
+                  <FormGroup
+                    style={{
+                      padding: '30px 0 0 0',
+                      width: '90%',
+                      margin: 'auto',
+                    }}
+                  >
+                    <Input
+                      name="song"
+                      id="songSearch"
+                      placeholder="Search"
+                      value={this.state.value}
+                      onChange={e => this.handleInputChange(e)}
+                    />
+                  </FormGroup>
+                </Form>
+                <div style={{ width: '90%', margin: 'auto' }}>
+                  {this.displaySearch(this.state.test)}
+                </div>
+              </div>
+              <div style={{ width: '90%', margin: 'auto' }}>
+                <iframe
+                  id="player"
+                  // tslint:disable-next-line: max-line-length
+                  src="https://open.spotify.com/embed?uri=spotify:user:1228847548:playlist:37i9dQZF1DWWQRwui0ExPn&amp;view=coverart"
+                  width="100%"
+                  height="380"
+                  allow="encrypted-media"
+                  style={{ marginTop: '30px' }}
+                />
               </div>
             </div>
-            <div style={{ width: '80%', margin: 'auto' }}>
-              <iframe
-                id="player"
-                // tslint:disable-next-line: max-line-length
-                src="https://open.spotify.com/embed?uri=spotify:user:1228847548:playlist:37i9dQZF1DWWQRwui0ExPn&amp;view=coverart"
-                width="100%"
-                height="380"
-                allow="encrypted-media"
-                style={{ marginTop: '30px' }}
-              />
+          </Col>
+          <Col sm={3} md={3} lg={3} style={{ padding: '0' }}>
+            <div
+              style={{ padding: '15px 0', width: '90%', margin: ' 15px auto', backgroundColor: '#c3c3c3', textAlign: 'center' }}
+            >
+              Suggestions
             </div>
-          </div>
-        </div>
+            <div
+              style={{ width: '90%', margin: 'auto' }}
+            >
+              {this.displaySuggestions()}
+            </div>
+          </Col>
+        </Row>
       </div>
     );
   }
