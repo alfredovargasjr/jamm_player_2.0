@@ -12,6 +12,10 @@ import {
   CardText,
   CardTitle,
   Col,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   Form,
   FormGroup,
   Input,
@@ -19,8 +23,10 @@ import {
   Label,
   Row,
 } from 'reactstrap';
+import Loading from '../components/Loading';
 import Track from '../components/Track';
-import { GetSessionComponent } from '../generated/graphql';
+import { GetSessionComponent, GetSessionQuery } from '../generated/graphql';
+import spotifyAPIServices from '../services/spotifyAPIServices';
 
 interface MatchParams {
   code?: string;
@@ -29,19 +35,24 @@ interface MatchParams {
 const RoomParent: React.FunctionComponent<
   RouteComponentProps<MatchParams>
 > = props => {
-  if (!props.match.params.code) {
-    return <Room />;
-  }
   return (
     <GetSessionComponent
-      variables={{ shortCode: props.match.params.code || '' }}
+      variables={{
+        shortCode:
+          props.match.params.code ||
+          localStorage.getItem('graphSessionShortCode') ||
+          '',
+      }}
     >
       {({ loading, error, data }) => {
         if (error) return `Error! ${error.message}`;
         if (loading || !data) return 'Loading...';
         if (data.Session) {
-          console.log('valid code');
-          return <Room code={props.match.params.code} />;
+          console.log(data);
+          if (!props.match.params.code) {
+            return <Room session={data} />;
+          }
+          return <Room code={props.match.params.code} session={data} />;
         }
         return <Redirect to="/" />;
       }}
@@ -49,29 +60,73 @@ const RoomParent: React.FunctionComponent<
   );
 };
 
-class Room extends React.Component<MatchParams> {
-  public state = {
+interface RoomProps {
+  session: GetSessionQuery;
+}
+
+interface RoomState {
+  roomCode: string;
+  roomData?: SpotifyGetPlaylistResponse.RootObject;
+  searchResults: any[];
+  test: boolean;
+  typing: boolean;
+  timeoutId: number;
+  value: string;
+  name: string;
+}
+
+class Room extends React.Component<MatchParams & RoomProps, RoomState> {
+  public state: RoomState = {
     name: '',
+    roomCode: '',
+    roomData: undefined,
     searchResults: [],
     test: false,
+    timeoutId: 0,
     typing: false,
-    typingTimeout: 0,
     value: '',
   };
 
+  public async componentDidMount() {
+    if (!!!this.props.code) {
+      const shortCode = localStorage.getItem('graphSessionShortCode');
+      if (shortCode) {
+        this.setState({ roomCode: shortCode });
+      }
+    } else {
+      this.setState({ roomCode: this.props.code });
+    }
+    const tokenType = localStorage.getItem('tokenType');
+    const accessToken = localStorage.getItem('accessToken');
+    if (this.props.session.Session && tokenType && accessToken) {
+      const playlistId = this.props.session.Session.sessionID;
+      const hostId = this.props.session.Session.hostID;
+      const playlistData = await spotifyAPIServices.getPlaylist(
+        tokenType,
+        accessToken,
+        hostId,
+        playlistId
+      );
+      if (playlistData) {
+        this.setState({ roomData: playlistData });
+        console.log(this.state.roomData);
+      }
+    }
+  }
+
   public handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (this.state.typingTimeout) {
-      clearTimeout(this.state.typingTimeout);
+    if (this.state.timeoutId) {
+      clearTimeout(this.state.timeoutId);
     }
 
     this.setState({
-      typing: false,
-      typingTimeout: setTimeout(() => {
+      timeoutId: (setTimeout(() => {
         // TODO: Spotify API request
         this.setState({
           test: true,
         });
-      }, 700),
+      }, 700) as unknown) as number,
+      typing: false,
       value: e.currentTarget.value,
     });
     console.log(this.state);
@@ -95,24 +150,37 @@ class Room extends React.Component<MatchParams> {
   public render() {
     const isJoiner = !!this.props.code;
     console.log(isJoiner);
+    if (!this.state.roomData) {
+      return <Loading />;
+    }
     return (
       <div>
         <div>
           <Jumbotron style={styles.jumbotron}>
-            <h1 style={{ textAlign: 'center', fontSize: '70px' }}>
-              <b>Jamm.</b>
+            <h1 style={{ textAlign: 'left', fontSize: '60px' }}>
+              <b>{this.state.roomData && this.state.roomData.name}</b>
             </h1>
             <p
-              style={{ textAlign: 'center', fontSize: '13px', color: 'white' }}
+              style={{
+                color: 'white',
+                fontSize: '13px',
+                margin: '0px',
+                textAlign: 'left',
+              }}
             >
-              This is a room
+              {this.state.roomData.description}
             </p>
           </Jumbotron>
           <div style={styles.page}>
             <Row style={{ width: '100%' }}>
               <Col style={{ padding: '0' }}>
-                <Row style={{ margin: '0 20%' }}>Hosted by </Row>
-                <Row style={{ margin: '30px 20%' }}>Share Code:</Row>
+                <Row style={{ margin: '0 20%' }}>
+                  Hosted by {this.state.roomData.owner.display_name}
+                </Row>
+                <Row style={{ margin: '30px 20%' }}>
+                  Share Code:
+                  <b style={{ marginLeft: '5px' }}>{this.state.roomCode}</b>
+                </Row>
               </Col>
               <Col style={{ padding: '0' }} />
             </Row>
@@ -152,7 +220,7 @@ class Room extends React.Component<MatchParams> {
                 <iframe
                   id="player"
                   // tslint:disable-next-line: max-line-length
-                  src="https://open.spotify.com/embed?uri=spotify:user:1228847548:playlist:37i9dQZF1DWWQRwui0ExPn&amp;view=coverart"
+                  src="https://open.spotify.com/embed?uri=spotify:user:alfredovargas:playlist:6XL4uoitJree2nBmD5zMmF&amp;view=coverart"
                   width="100%"
                   height="380"
                   allow="encrypted-media"
@@ -197,7 +265,9 @@ const styles = {
     borderRadius: '0px',
     color: '#1db954',
     marginBottom: '0px',
-    padding: '60px',
+    padding: '0px',
+    paddingLeft: '20px',
+    paddingRight: '20px',
     width: '100%',
   },
   page: {

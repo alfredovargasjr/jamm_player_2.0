@@ -10,11 +10,20 @@ export const deleteTrackRequest = gql`
 `;
 
 export const createSession = gql`
-  mutation createSession($sessionID: String!, $shortCode: String!) {
-    createSession(sessionID: $sessionID, shortCode: $shortCode) {
+  mutation createSession(
+    $sessionID: String!
+    $shortCode: String!
+    $hostID: String!
+  ) {
+    createSession(
+      sessionID: $sessionID
+      shortCode: $shortCode
+      hostID: $hostID
+    ) {
       id
       shortCode
       sessionID
+      hostID
     }
   }
 `;

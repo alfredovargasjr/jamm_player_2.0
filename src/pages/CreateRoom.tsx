@@ -87,7 +87,11 @@ class CreateRoom extends React.Component<CreateRoomPropsInternal> {
               CreateSessionMutationVariables
             >({
               mutation: createSession,
-              variables: { sessionID: createdPlaylist.id, shortCode: short },
+              variables: {
+                hostID: createdPlaylist.owner.id,
+                sessionID: createdPlaylist.id,
+                shortCode: short,
+              },
             });
             if (data.data.createSession) {
               localStorage.setItem(

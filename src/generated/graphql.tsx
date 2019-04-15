@@ -30,6 +30,7 @@ export type CreateFile = {
 };
 
 export type CreateSession = {
+  hostID: Scalars['String'];
   sessionID: Scalars['String'];
   shortCode: Scalars['String'];
   tracksesIds?: Maybe<Array<Scalars['ID']>>;
@@ -514,6 +515,7 @@ export type MutationCreateFileArgs = {
 };
 
 export type MutationCreateSessionArgs = {
+  hostID: Scalars['String'];
   sessionID: Scalars['String'];
   shortCode: Scalars['String'];
   tracksesIds?: Maybe<Array<Scalars['ID']>>;
@@ -532,6 +534,7 @@ export type MutationUpdateFileArgs = {
 };
 
 export type MutationUpdateSessionArgs = {
+  hostID?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   sessionID?: Maybe<Scalars['String']>;
   shortCode?: Maybe<Scalars['String']>;
@@ -733,6 +736,7 @@ export type RemoveFromSessionOnTracksPayload = {
 };
 
 export type Session = Node & {
+  hostID: Scalars['String'];
   id: Scalars['ID'];
   sessionID: Scalars['String'];
   shortCode: Scalars['String'];
@@ -766,6 +770,33 @@ export type SessionFilter = {
   AND?: Maybe<Array<SessionFilter>>;
   /** Logical OR on all given filters. */
   OR?: Maybe<Array<SessionFilter>>;
+  hostID?: Maybe<Scalars['String']>;
+  /** All values that are not equal to given value. */
+  hostID_not?: Maybe<Scalars['String']>;
+  /** All values that are contained in given list. */
+  hostID_in?: Maybe<Array<Scalars['String']>>;
+  /** All values that are not contained in given list. */
+  hostID_not_in?: Maybe<Array<Scalars['String']>>;
+  /** All values less than the given value. */
+  hostID_lt?: Maybe<Scalars['String']>;
+  /** All values less than or equal the given value. */
+  hostID_lte?: Maybe<Scalars['String']>;
+  /** All values greater than the given value. */
+  hostID_gt?: Maybe<Scalars['String']>;
+  /** All values greater than or equal the given value. */
+  hostID_gte?: Maybe<Scalars['String']>;
+  /** All values containing the given string. */
+  hostID_contains?: Maybe<Scalars['String']>;
+  /** All values not containing the given string. */
+  hostID_not_contains?: Maybe<Scalars['String']>;
+  /** All values starting with the given string. */
+  hostID_starts_with?: Maybe<Scalars['String']>;
+  /** All values not starting with the given string. */
+  hostID_not_starts_with?: Maybe<Scalars['String']>;
+  /** All values ending with the given string. */
+  hostID_ends_with?: Maybe<Scalars['String']>;
+  /** All values not ending with the given string. */
+  hostID_not_ends_with?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['ID']>;
   /** All values that are not equal to given value. */
   id_not?: Maybe<Scalars['ID']>;
@@ -853,6 +884,8 @@ export type SessionFilter = {
 };
 
 export enum SessionOrderBy {
+  HostIdAsc = 'hostID_ASC',
+  HostIdDesc = 'hostID_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   SessionIdAsc = 'sessionID_ASC',
@@ -862,6 +895,7 @@ export enum SessionOrderBy {
 }
 
 export type SessionPreviousValues = {
+  hostID: Scalars['String'];
   id: Scalars['ID'];
   sessionID: Scalars['String'];
   shortCode: Scalars['String'];
@@ -884,6 +918,33 @@ export type SessionSubscriptionFilter = {
 };
 
 export type SessionSubscriptionFilterNode = {
+  hostID?: Maybe<Scalars['String']>;
+  /** All values that are not equal to given value. */
+  hostID_not?: Maybe<Scalars['String']>;
+  /** All values that are contained in given list. */
+  hostID_in?: Maybe<Array<Scalars['String']>>;
+  /** All values that are not contained in given list. */
+  hostID_not_in?: Maybe<Array<Scalars['String']>>;
+  /** All values less than the given value. */
+  hostID_lt?: Maybe<Scalars['String']>;
+  /** All values less than or equal the given value. */
+  hostID_lte?: Maybe<Scalars['String']>;
+  /** All values greater than the given value. */
+  hostID_gt?: Maybe<Scalars['String']>;
+  /** All values greater than or equal the given value. */
+  hostID_gte?: Maybe<Scalars['String']>;
+  /** All values containing the given string. */
+  hostID_contains?: Maybe<Scalars['String']>;
+  /** All values not containing the given string. */
+  hostID_not_contains?: Maybe<Scalars['String']>;
+  /** All values starting with the given string. */
+  hostID_starts_with?: Maybe<Scalars['String']>;
+  /** All values not starting with the given string. */
+  hostID_not_starts_with?: Maybe<Scalars['String']>;
+  /** All values ending with the given string. */
+  hostID_ends_with?: Maybe<Scalars['String']>;
+  /** All values not ending with the given string. */
+  hostID_not_ends_with?: Maybe<Scalars['String']>;
   id?: Maybe<Scalars['ID']>;
   /** All values that are not equal to given value. */
   id_not?: Maybe<Scalars['ID']>;
@@ -1089,6 +1150,7 @@ export type TracksPreviousValues = {
 };
 
 export type TrackssessionSession = {
+  hostID: Scalars['String'];
   sessionID: Scalars['String'];
   shortCode: Scalars['String'];
   tracksesIds?: Maybe<Array<Scalars['ID']>>;
@@ -1182,6 +1244,7 @@ export type UpdateFile = {
 };
 
 export type UpdateSession = {
+  hostID?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   sessionID?: Maybe<Scalars['String']>;
   shortCode?: Maybe<Scalars['String']>;
@@ -1380,11 +1443,15 @@ export type DeleteTrackRequestMutation = { __typename?: 'Mutation' } & {
 export type CreateSessionMutationVariables = {
   sessionID: Scalars['String'];
   shortCode: Scalars['String'];
+  hostID: Scalars['String'];
 };
 
 export type CreateSessionMutation = { __typename?: 'Mutation' } & {
   createSession: Maybe<
-    { __typename?: 'Session' } & Pick<Session, 'id' | 'shortCode' | 'sessionID'>
+    { __typename?: 'Session' } & Pick<
+      Session,
+      'id' | 'shortCode' | 'sessionID' | 'hostID'
+    >
   >;
 };
 
@@ -1405,7 +1472,10 @@ export type GetSessionQueryVariables = {
 
 export type GetSessionQuery = { __typename?: 'Query' } & {
   Session: Maybe<
-    { __typename?: 'Session' } & Pick<Session, 'id'> & {
+    { __typename?: 'Session' } & Pick<
+      Session,
+      'id' | 'sessionID' | 'hostID'
+    > & {
         trackses: Maybe<
           Array<{ __typename?: 'Tracks' } & Pick<Tracks, 'trackID' | 'id'>>
         >;
@@ -1475,11 +1545,20 @@ export function withDeleteTrackRequest<TProps, TChildProps = {}>(
   >(DeleteTrackRequestDocument, operationOptions);
 }
 export const CreateSessionDocument = gql`
-  mutation createSession($sessionID: String!, $shortCode: String!) {
-    createSession(sessionID: $sessionID, shortCode: $shortCode) {
+  mutation createSession(
+    $sessionID: String!
+    $shortCode: String!
+    $hostID: String!
+  ) {
+    createSession(
+      sessionID: $sessionID
+      shortCode: $shortCode
+      hostID: $hostID
+    ) {
       id
       shortCode
       sessionID
+      hostID
     }
   }
 `;
@@ -1585,6 +1664,8 @@ export const GetSessionDocument = gql`
         trackID
         id
       }
+      sessionID
+      hostID
     }
   }
 `;

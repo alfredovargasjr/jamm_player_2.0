@@ -133,7 +133,7 @@ async function followPlaylist(
   token: string,
   hostId: string,
   playlistId: string
-) {
+): Promise<boolean> {
   const response = await fetch(
     `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}/followers`,
     {
@@ -145,10 +145,9 @@ async function followPlaylist(
     }
   );
   if (response.status === 200) {
-    const json = await response.json();
-    return json;
+    return true;
   }
-  return undefined;
+  return false;
 }
 
 // - API: follow a playlist, need to follow a collaboraive playlist to add a song
@@ -157,14 +156,14 @@ async function getPlaylist(
   token: string,
   hostId: string,
   playlistId: string
-) {
+): Promise<SpotifyGetPlaylistResponse.RootObject | undefined> {
   const response = await fetch(
     `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}`,
     {
       headers: {
         Authorization: `${tokenType} ${token}`,
-        method: 'GET',
       },
+      method: 'GET',
     }
   );
   if (response.status === 200) {

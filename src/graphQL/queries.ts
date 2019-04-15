@@ -8,6 +8,8 @@ const getSession = gql`
         trackID
         id
       }
+      sessionID
+      hostID
     }
   }
 `;
