@@ -19,16 +19,16 @@ export default class Track extends React.Component {
   }
 
   public handleOnClick() {
-    //TODO: Send to playlist/suggestions
+    // TODO: Send to playlist/suggestions
   }
 
   public render() {
     const trackInfo = this.props;
     return (
       <Row style={styles.songcard} onClick={this.handleOnClick}>
-        <Col sm={2} xs={2} lg={1} fluid="true" style={{padding: '0'}}>
+        <Col sm={2} xs={2} lg={1} fluid="true" style={{ padding: '0' }}>
           {/* <img src={trackInfo.albumArt} /> */}
-          <img src="https://via.placeholder.com/67"/>
+          <img src="https://via.placeholder.com/67" />
         </Col>
         <Col sm={10} xs={10} lg={11} fluid="true">
           <ListGroup>
@@ -68,9 +68,9 @@ const styles = {
     paddingTop: '15px',
   },
   songcard: {
-    color: 'black',
-    width: '100%',
     backgroundColor: 'white',
+    color: 'black',
     margin: '0',
+    width: '100%',
   },
 };

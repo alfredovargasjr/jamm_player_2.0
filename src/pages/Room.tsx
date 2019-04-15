@@ -1,5 +1,10 @@
 import * as React from 'react';
-import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
+import {
+  Link,
+  Redirect,
+  RouteComponentProps,
+  withRouter,
+} from 'react-router-dom';
 import {
   Alert,
   Button,
@@ -14,17 +19,44 @@ import {
   Label,
   Row,
 } from 'reactstrap';
-import { getAuthObj } from '../AuthUtils';
 import Track from '../components/Track';
+import { GetSessionComponent } from '../generated/graphql';
 
-class Room extends React.Component<RouteComponentProps> {
+interface MatchParams {
+  code?: string;
+}
+
+const RoomParent: React.FunctionComponent<
+  RouteComponentProps<MatchParams>
+> = props => {
+  if (!props.match.params.code) {
+    return <Room />;
+  }
+  return (
+    <GetSessionComponent
+      variables={{ shortCode: props.match.params.code || '' }}
+    >
+      {({ loading, error, data }) => {
+        if (error) return `Error! ${error.message}`;
+        if (loading || !data) return 'Loading...';
+        if (data.Session) {
+          console.log('valid code');
+          return <Room code={props.match.params.code} />;
+        }
+        return <Redirect to="/" />;
+      }}
+    </GetSessionComponent>
+  );
+};
+
+class Room extends React.Component<MatchParams> {
   public state = {
-    test: false,
-    value: '',
-    searchResults: [],
     name: '',
+    searchResults: [],
+    test: false,
     typing: false,
     typingTimeout: 0,
+    value: '',
   };
 
   public handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -39,7 +71,7 @@ class Room extends React.Component<RouteComponentProps> {
         this.setState({
           test: true,
         });
-      }, 3000),
+      }, 700),
       value: e.currentTarget.value,
     });
     console.log(this.state);
@@ -61,11 +93,8 @@ class Room extends React.Component<RouteComponentProps> {
   // TODO: Retrieve user and session code to display
 
   public render() {
-    const authObj = getAuthObj();
-    if (!authObj) {
-      return <Alert color="danger">You are not authorized!</Alert>;
-    }
-
+    const isJoiner = !!this.props.code;
+    console.log(isJoiner);
     return (
       <div>
         <div>
@@ -93,17 +122,17 @@ class Room extends React.Component<RouteComponentProps> {
           <Col sm={9} md={9} lg={9} style={{ padding: '0' }}>
             <div
               style={{
-                width: '90%',
                 margin: 'auto',
+                width: '90%',
               }}
             >
               <div>
                 <Form>
                   <FormGroup
                     style={{
+                      margin: 'auto',
                       padding: '30px 0 0 0',
                       width: '90%',
-                      margin: 'auto',
                     }}
                   >
                     <Input
@@ -132,18 +161,24 @@ class Room extends React.Component<RouteComponentProps> {
               </div>
             </div>
           </Col>
-          <Col sm={3} md={3} lg={3} style={{ padding: '0' }}>
-            <div
-              style={{ padding: '15px 0', width: '90%', margin: ' 15px auto', backgroundColor: '#c3c3c3', textAlign: 'center' }}
-            >
-              Suggestions
-            </div>
-            <div
-              style={{ width: '90%', margin: 'auto' }}
-            >
-              {this.displaySuggestions()}
-            </div>
-          </Col>
+          {!isJoiner ? (
+            <Col sm={3} md={3} lg={3} style={{ padding: '0' }}>
+              <div
+                style={{
+                  backgroundColor: '#c3c3c3',
+                  margin: ' 15px auto',
+                  padding: '15px 0',
+                  textAlign: 'center',
+                  width: '90%',
+                }}
+              >
+                Suggestions
+              </div>
+              <div style={{ width: '90%', margin: 'auto' }}>
+                {this.displaySuggestions()}
+              </div>
+            </Col>
+          ) : null}
         </Row>
       </div>
     );
@@ -172,9 +207,9 @@ const styles = {
   row: {
     marginLeft: '0px',
     marginRight: '0px',
-    paddingTop: '15px',
     paddingBottom: '15px',
+    paddingTop: '15px',
   },
 };
 
-export default withRouter(Room);
+export default withRouter(RoomParent);

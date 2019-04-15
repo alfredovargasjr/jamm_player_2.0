@@ -94,7 +94,7 @@ class CreateRoom extends React.Component<CreateRoomPropsInternal> {
                 'graphSessionShortCode',
                 data.data.createSession.shortCode
               );
-              this.props.history.push(`/room${location.hash}`);
+              this.props.history.push(`/room`);
             }
           } catch (e) {
             const alertNotification = { ...this.state.alertNotification };
