@@ -12,7 +12,11 @@ interface SearchState {
   mouseOnComponent: boolean;
 }
 
-export default class Search extends React.Component<{}, SearchState> {
+interface SearchProps {
+  isJoiner: boolean;
+}
+
+export default class Search extends React.Component<SearchProps, SearchState> {
   public state: SearchState = {
     mouseOnComponent: false,
     searchQuery: '',
@@ -56,7 +60,12 @@ export default class Search extends React.Component<{}, SearchState> {
       return (
         <ListGroup>
           {this.state.searchResults.map(track => (
-            <Track key={track.id} track={track} />
+            <Track
+              isJoiner={this.props.isJoiner}
+              key={track.id}
+              track={track}
+              disabled={false}
+            />
           ))}
         </ListGroup>
       );
@@ -106,7 +115,7 @@ export default class Search extends React.Component<{}, SearchState> {
         <div
           style={{
             height: '380px',
-            marginLeft: '24px',
+            marginLeft: '43px',
             overflow: 'auto',
             position: 'absolute',
             width: '81%',

@@ -24,9 +24,11 @@ import {
   Row,
 } from 'reactstrap';
 import Loading from '../components/Loading';
+import PlaylistTracks from '../components/PlaylistTracks';
+import Search from '../components/Search';
+import Suggestions from '../components/Suggestions';
 import { GetSessionComponent, GetSessionQuery } from '../generated/graphql';
 import spotifyAPIServices from '../services/spotifyAPIServices';
-import Search from '../components/Search';
 
 interface MatchParams {
   code?: string;
@@ -49,6 +51,7 @@ const RoomParent: React.FunctionComponent<
         if (loading || !data) return 'Loading...';
         if (data.Session) {
           console.log(data);
+          localStorage.setItem('graphSessionId', data.Session.id);
           if (!props.match.params.code) {
             return <Room session={data} />;
           }
@@ -106,7 +109,7 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
   }
 
   // TODO: Get list of suggestions and display suggestions
-  public displaySuggestions() {
+  public async displaySuggestions() {
     return <div />;
   }
 
@@ -121,7 +124,13 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
       <div>
         <div>
           <Jumbotron style={styles.jumbotron}>
-            <h1 style={{ textAlign: 'left', fontSize: '60px' }}>
+            <h1
+              style={{
+                fontSize: '60px',
+                marginBottom: '0px',
+                textAlign: 'left',
+              }}
+            >
               <b>{this.state.roomData && this.state.roomData.name}</b>
             </h1>
             <p
@@ -137,11 +146,11 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
           </Jumbotron>
           <div style={styles.page}>
             <Row style={{ width: '100%' }}>
-              <Col style={{ padding: '0' }}>
-                <Row style={{ margin: '0 20%' }}>
+              <Col style={{ padding: '0', textAlign: 'left' }}>
+                <Row style={{ margin: '0 20%', textAlign: 'left' }}>
                   Hosted by {this.state.roomData.owner.display_name}
                 </Row>
-                <Row style={{ margin: '30px 20%' }}>
+                <Row style={{ margin: '30px 20%', textAlign: 'left' }}>
                   Share Code:
                   <b style={{ marginLeft: '5px' }}>{this.state.roomCode}</b>
                 </Row>
@@ -150,47 +159,122 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
             </Row>
           </div>
         </div>
-        <Row style={{ backgroundColor: '#d5d5d5', margin: '0' }}>
-          <Col sm={9} md={12} lg={6} style={{ padding: '0' }}>
-            <div
-              style={{
-                margin: 'auto',
-                width: '90%',
-              }}
-            >
-              <div>
-                <Search />
-              </div>
-              <div style={{ width: '90%', margin: 'auto' }}>
-                <iframe
-                  id="player"
-                  // tslint:disable-next-line: max-line-length
-                  src="https://open.spotify.com/embed?uri=spotify:user:alfredovargas:playlist:6XL4uoitJree2nBmD5zMmF&amp;view=coverart"
-                  width="100%"
-                  height="380"
-                  allow="encrypted-media"
-                  style={{ marginTop: '30px' }}
-                />
-              </div>
-            </div>
-          </Col>
-          <Col sm={3} md={3} lg={6} style={{ padding: '0' }}>
-            <div
-              style={{
-                backgroundColor: '#c3c3c3',
-                margin: ' 15px auto',
-                padding: '15px 0',
-                textAlign: 'center',
-                width: '90%',
-              }}
-            >
-              Suggestions
-            </div>
-            <div style={{ width: '90%', margin: 'auto' }}>
-              {this.displaySuggestions()}
-            </div>
-          </Col>
-        </Row>
+        {isJoiner ? (
+          <div>
+            <Row style={{ backgroundColor: '#d5d5d5', margin: '0' }}>
+              <Col sm={12} md={12} lg={12} style={{ padding: '0' }}>
+                <div
+                  style={{
+                    margin: 'auto',
+                    width: '90%',
+                  }}
+                >
+                  <div>
+                    <Search isJoiner={isJoiner} />
+                  </div>
+                  <div style={{ width: '90%', margin: 'auto' }}>
+                    <GetSessionComponent
+                      variables={{
+                        shortCode:
+                          localStorage.getItem('graphSessionShortCode') || '',
+                      }}
+                      // pollInterval={500}
+                    >
+                      {({ loading, error, data }) => {
+                        if (error) return `Error! ${error.message}`;
+                        if (loading || !data) return 'Loading...';
+                        console.log(data);
+                        if (data.Session) {
+                          const playlistId = data.Session.sessionID;
+                          const hostId = data.Session.hostID;
+                          if (playlistId && hostId) {
+                            return (
+                              <PlaylistTracks
+                                playlistId={playlistId}
+                                hostId={hostId}
+                                isJoiner={isJoiner}
+                              />
+                            );
+                          }
+                        }
+                        return <Loading />;
+                      }}
+                    </GetSessionComponent>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        ) : (
+          <div>
+            <Row style={{ backgroundColor: '#d5d5d5', margin: '0' }}>
+              <Col sm={9} md={12} lg={6} style={{ padding: '0' }}>
+                <div
+                  style={{
+                    margin: 'auto',
+                    width: '90%',
+                  }}
+                >
+                  <div>
+                    <Search isJoiner={isJoiner} />
+                  </div>
+                  <div style={{ width: '90%', margin: 'auto' }}>
+                    <iframe
+                      id="player"
+                      // tslint:disable-next-line: max-line-length
+                      src={`https://open.spotify.com/embed?uri=spotify:user:${
+                        this.state.roomData.owner.id
+                      }:playlist:${this.state.roomData.id}&amp;view=coverart`}
+                      width="100%"
+                      height="380"
+                      allow="encrypted-media"
+                      style={{ marginTop: '30px' }}
+                    />
+                  </div>
+                </div>
+              </Col>
+              <Col sm={3} md={3} lg={6} style={{ padding: '0' }}>
+                <div
+                  style={{
+                    backgroundColor: '#c3c3c3',
+                    margin: ' 15px auto',
+                    padding: '15px 0',
+                    textAlign: 'center',
+                    width: '90%',
+                  }}
+                >
+                  Suggestions
+                </div>
+                <div style={{ width: '90%', margin: 'auto' }}>
+                  <GetSessionComponent
+                    variables={{
+                      shortCode:
+                        localStorage.getItem('graphSessionShortCode') || '',
+                    }}
+                    // pollInterval={500}
+                  >
+                    {({ loading, error, data }) => {
+                      if (error) return `Error! ${error.message}`;
+                      if (loading || !data) return 'Loading...';
+                      console.log(data);
+                      if (data.Session) {
+                        if (data.Session.trackses) {
+                          return (
+                            <Suggestions
+                              isJoiner={isJoiner}
+                              tracks={data.Session.trackses}
+                            />
+                          );
+                        }
+                      }
+                      return <Loading />;
+                    }}
+                  </GetSessionComponent>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        )}
       </div>
     );
   }
