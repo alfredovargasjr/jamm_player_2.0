@@ -71,7 +71,7 @@ interface RoomState {
   test: boolean;
   typing: boolean;
   timeoutId: number;
-  value: string;
+  searchQuery: string;
   name: string;
 }
 
@@ -80,11 +80,11 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
     name: '',
     roomCode: '',
     roomData: undefined,
+    searchQuery: '',
     searchResults: [],
     test: false,
     timeoutId: 0,
     typing: false,
-    value: '',
   };
 
   public async componentDidMount() {
@@ -120,22 +120,37 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
     }
 
     this.setState({
-      timeoutId: (setTimeout(() => {
-        // TODO: Spotify API request
+      searchQuery: e.currentTarget.value,
+      timeoutId: (setTimeout(async () => {
+        const tokenType = localStorage.getItem('tokenType');
+        const accessToken = localStorage.getItem('accessToken');
+        if (tokenType && accessToken) {
+          const resultData = await spotifyAPIServices.searchTrack(tokenType, accessToken, e.currentTarget.value);
+          if (resultData) {
+            this.setState({searchResults: resultData.tracks.items})
+          }
+        }
         this.setState({
           test: true,
         });
       }, 700) as unknown) as number,
       typing: false,
-      value: e.currentTarget.value,
     });
     console.log(this.state);
   }
 
   // TODO: Request search from Spotify API and display searches
-  public displaySearch(test: boolean) {
-    if (test) {
-      return <Track />;
+  public displaySearch() {
+    if (this.state.test) {
+      return (
+        <div>
+          <Track />
+          <Track />
+          <Track />
+          <Track />
+          <Track />
+        </div>
+      );
     }
     return null;
   }
@@ -149,7 +164,6 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
 
   public render() {
     const isJoiner = !!this.props.code;
-    console.log(isJoiner);
     if (!this.state.roomData) {
       return <Loading />;
     }
@@ -187,7 +201,7 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
           </div>
         </div>
         <Row style={{ backgroundColor: '#d5d5d5', margin: '0' }}>
-          <Col sm={9} md={9} lg={9} style={{ padding: '0' }}>
+          <Col sm={9} md={12} lg={6} style={{ padding: '0' }}>
             <div
               style={{
                 margin: 'auto',
@@ -207,7 +221,7 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                       name="song"
                       id="songSearch"
                       placeholder="Search"
-                      value={this.state.value}
+                      value={this.state.searchQuery}
                       onChange={e => this.handleInputChange(e)}
                     />
                   </FormGroup>
@@ -229,24 +243,22 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
               </div>
             </div>
           </Col>
-          {!isJoiner ? (
-            <Col sm={3} md={3} lg={3} style={{ padding: '0' }}>
-              <div
-                style={{
-                  backgroundColor: '#c3c3c3',
-                  margin: ' 15px auto',
-                  padding: '15px 0',
-                  textAlign: 'center',
-                  width: '90%',
-                }}
-              >
-                Suggestions
-              </div>
-              <div style={{ width: '90%', margin: 'auto' }}>
-                {this.displaySuggestions()}
-              </div>
-            </Col>
-          ) : null}
+          <Col sm={3} md={3} lg={6} style={{ padding: '0' }}>
+            <div
+              style={{
+                backgroundColor: '#c3c3c3',
+                margin: ' 15px auto',
+                padding: '15px 0',
+                textAlign: 'center',
+                width: '90%',
+              }}
+            >
+              Suggestions
+            </div>
+            <div style={{ width: '90%', margin: 'auto' }}>
+              {this.displaySuggestions()}
+            </div>
+          </Col>
         </Row>
       </div>
     );

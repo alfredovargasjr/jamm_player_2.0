@@ -13,31 +13,30 @@ import {
   Row,
 } from 'reactstrap';
 
-export default class Track extends React.Component {
-  constructor(props: any) {
-    super(props);
-  }
+interface TrackProps {
+  track: SpotifySearchTrackResponse.Item;
+}
 
+export default class Track extends React.Component<TrackProps> {
   public handleOnClick() {
     // TODO: Send to playlist/suggestions
   }
 
   public render() {
-    const trackInfo = this.props;
+    const { track } = this.props;
     return (
       <Row style={styles.songcard} onClick={this.handleOnClick}>
         <Col sm={2} xs={2} lg={1} fluid="true" style={{ padding: '0' }}>
-          {/* <img src={trackInfo.albumArt} /> */}
-          <img src="https://via.placeholder.com/67" />
+          <img src={track.album.images[2].url} />
         </Col>
         <Col sm={10} xs={10} lg={11} fluid="true">
           <ListGroup>
             <ListGroupItem style={{ border: '0px', padding: '5px 0' }}>
-              {/* {trackInfo.artistName} */}
+              {track.name}
               artist name
             </ListGroupItem>
             <ListGroupItem style={{ border: '0px', padding: '5px 0' }}>
-              {/* {trackInfo.songName} */}
+              {track.artists[0].name}
               song name
             </ListGroupItem>
           </ListGroup>

@@ -9,10 +9,10 @@ const client = new ApolloClient({
 });
 
 const App: React.FunctionComponent = () => (
-  <ApolloProvider client={client}>
-    <NavBar />
-    <Routes />
-  </ApolloProvider>
+    <ApolloProvider client={client}>
+      <NavBar />
+      <Routes />
+    </ApolloProvider>
 );
 
 export default App;
