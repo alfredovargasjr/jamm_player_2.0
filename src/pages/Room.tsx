@@ -24,9 +24,9 @@ import {
   Row,
 } from 'reactstrap';
 import Loading from '../components/Loading';
-import Track from '../components/Track';
 import { GetSessionComponent, GetSessionQuery } from '../generated/graphql';
 import spotifyAPIServices from '../services/spotifyAPIServices';
+import Search from '../components/Search';
 
 interface MatchParams {
   code?: string;
@@ -67,11 +67,7 @@ interface RoomProps {
 interface RoomState {
   roomCode: string;
   roomData?: SpotifyGetPlaylistResponse.RootObject;
-  searchResults: any[];
-  test: boolean;
-  typing: boolean;
-  timeoutId: number;
-  searchQuery: string;
+
   name: string;
 }
 
@@ -80,11 +76,6 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
     name: '',
     roomCode: '',
     roomData: undefined,
-    searchQuery: '',
-    searchResults: [],
-    test: false,
-    timeoutId: 0,
-    typing: false,
   };
 
   public async componentDidMount() {
@@ -114,50 +105,9 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
     }
   }
 
-  public handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (this.state.timeoutId) {
-      clearTimeout(this.state.timeoutId);
-    }
-
-    this.setState({
-      searchQuery: e.currentTarget.value,
-      timeoutId: (setTimeout(async () => {
-        const tokenType = localStorage.getItem('tokenType');
-        const accessToken = localStorage.getItem('accessToken');
-        if (tokenType && accessToken) {
-          const resultData = await spotifyAPIServices.searchTrack(tokenType, accessToken, e.currentTarget.value);
-          if (resultData) {
-            this.setState({searchResults: resultData.tracks.items})
-          }
-        }
-        this.setState({
-          test: true,
-        });
-      }, 700) as unknown) as number,
-      typing: false,
-    });
-    console.log(this.state);
-  }
-
-  // TODO: Request search from Spotify API and display searches
-  public displaySearch() {
-    if (this.state.test) {
-      return (
-        <div>
-          <Track />
-          <Track />
-          <Track />
-          <Track />
-          <Track />
-        </div>
-      );
-    }
-    return null;
-  }
-
   // TODO: Get list of suggestions and display suggestions
   public displaySuggestions() {
-    return <Track />;
+    return <div />;
   }
 
   // TODO: Retrieve user and session code to display
@@ -209,26 +159,7 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
               }}
             >
               <div>
-                <Form>
-                  <FormGroup
-                    style={{
-                      margin: 'auto',
-                      padding: '30px 0 0 0',
-                      width: '90%',
-                    }}
-                  >
-                    <Input
-                      name="song"
-                      id="songSearch"
-                      placeholder="Search"
-                      value={this.state.searchQuery}
-                      onChange={e => this.handleInputChange(e)}
-                    />
-                  </FormGroup>
-                </Form>
-                <div style={{ width: '90%', margin: 'auto' }}>
-                  {this.displaySearch(this.state.test)}
-                </div>
+                <Search />
               </div>
               <div style={{ width: '90%', margin: 'auto' }}>
                 <iframe
