@@ -57,10 +57,10 @@ export default class Suggestions extends React.Component<
         }}
       >
         <ListGroup>
-          {this.state.suggestedTracks.map(track => (
+          {this.state.suggestedTracks.map((track, i) => (
             <Track
               isJoiner={this.props.isJoiner}
-              key={track.id}
+              key={`${track.id + i}`}
               track={track}
               disabled={false}
             />

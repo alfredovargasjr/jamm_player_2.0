@@ -37,8 +37,11 @@ export default class PlaylistTracks extends React.Component<
       );
       if (getTracks) {
         if (getTracks.items) {
-          console.log(getTracks.);
-          this.setState({ playlistTracks: getTracks.items });
+          const tracks: SpotifyGetPlaylistTracksResponse.Track[] = [];
+          getTracks.items.map((item, i) => {
+            tracks.push(item.track);
+          });
+          this.setState({ playlistTracks: tracks });
         }
       }
     }
@@ -56,10 +59,10 @@ export default class PlaylistTracks extends React.Component<
         }}
       >
         <ListGroup>
-          {this.state.playlistTracks.map(track => (
+          {this.state.playlistTracks.map((track, i) => (
             <Track
               isJoiner={this.props.isJoiner}
-              key={track.id}
+              key={`${track.id + i}`}
               track={track}
               disabled={true}
             />
