@@ -67,6 +67,10 @@ export default class Suggestions extends React.Component<
                   `"${track.name} by ${track.artists[0].name}"`,
                   'Suggested Song was added to the playlist'
                 );
+                const optimistic = this.state.suggestedTracks.filter(
+                  item => item.gId !== track.gId
+                );
+                this.setState({ suggestedTracks: optimistic });
                 this.props.reloadComponent();
                 return;
               }
@@ -95,7 +99,7 @@ export default class Suggestions extends React.Component<
   ): Promise<SpotifySearchTrackResponse.Item[]> {
     const tokenType = localStorage.getItem('tokenType');
     const accessToken = localStorage.getItem('accessToken');
-    if (tracks && tokenType && accessToken) {
+    if (tracks && tokenType && accessToken && (tracks.length > 0)) {
       const getTracks = await spotifyAPIServices.getTracks(
         tokenType,
         accessToken,
