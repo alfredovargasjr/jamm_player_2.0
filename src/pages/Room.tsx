@@ -210,11 +210,10 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                         const hostId = data.Session.hostID;
                         if (playlistId && hostId) {
                           return (
-                            <Suggestions
-                              key={data.Session.trackses.length}
+                            <PlaylistTracks
                               isJoiner={isJoiner}
-                              tracks={data.Session.trackses}
-                              reloadComponent={this.refreshIframePlaylist}
+                              playlistId={playlistId}
+                              hostId={hostId}
                             />
                           );
                         }
@@ -273,15 +272,15 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                   {({ loading, error, data }) => {
                     if (error) return `Error! ${error.message}`;
                     if (loading || !data) return 'Loading...';
-                    if (data.Session) {
-                      if (data.Session.trackses) {
-                        return (
-                          <Suggestions
-                            isJoiner={isJoiner}
-                            tracks={data.Session.trackses}
-                          />
-                        );
-                      }
+                    if (data.Session && data.Session.trackses) {
+                      return (
+                        <Suggestions
+                          key={data.Session.trackses.length}
+                          isJoiner={isJoiner}
+                          tracks={data.Session.trackses}
+                          reloadComponent={this.refreshIframePlaylist}
+                        />
+                      );
                     }
                     return <Loading />;
                   }}

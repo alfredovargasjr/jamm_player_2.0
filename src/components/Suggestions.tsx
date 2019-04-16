@@ -123,10 +123,7 @@ export default class Suggestions extends React.Component<
       <div
         style={{
           height: '380px',
-          marginLeft: '43px',
           overflow: 'auto',
-          position: 'absolute',
-          width: '81%',
         }}
       >
         <ListGroup>
