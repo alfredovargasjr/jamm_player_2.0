@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Alert from 'reactstrap/lib/Alert';
 import ListGroup from 'reactstrap/lib/ListGroup';
 import Track from '../components/Track';
 import spotifyAPIServices from '../services/spotifyAPIServices';
@@ -35,14 +36,12 @@ export default class PlaylistTracks extends React.Component<
         hostId,
         playlistId
       );
-      if (getTracks) {
-        if (getTracks.items) {
-          const tracks: SpotifyGetPlaylistTracksResponse.Track[] = [];
-          getTracks.items.map((item, i) => {
-            tracks.push(item.track);
-          });
-          this.setState({ playlistTracks: tracks });
-        }
+      if (getTracks && getTracks.items) {
+        const tracks: SpotifyGetPlaylistTracksResponse.Track[] = [];
+        getTracks.items.map((item, i) => {
+          tracks.push(item.track);
+        });
+        this.setState({ playlistTracks: tracks });
       }
     }
   }
@@ -58,15 +57,12 @@ export default class PlaylistTracks extends React.Component<
           // width: '81%',
         }}
       >
+        <Alert style={{ marginBottom: 0, marginTop: '5px' }} color="info">
+          Songs Currently in Playlist (Not Suggested Songs)
+        </Alert>
         <ListGroup>
           {this.state.playlistTracks.map((track, i) => (
-            // <Track
-            //   isJoiner={this.props.isJoiner}
-            //   key={`${track.id + i}`}
-            //   track={track}
-            //   disabled={true}
-            // />
-            <div></div>
+            <Track key={`${track.id + i}`} track={track} disabled={true} />
           ))}
         </ListGroup>
       </div>
