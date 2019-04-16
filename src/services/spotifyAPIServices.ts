@@ -105,13 +105,12 @@ async function searchTrack(
 async function addTrackToPlaylist(
   tokenType: string,
   token: string,
-  trackUri: string,
   playlistId: string,
-  userId: string
-): Promise<SpotifyAddTrackToPlaylistResponse.RootObject | undefined> {
+  trackUri: string
+) {
   const uriEncoded = encodeURI(trackUri);
   const response = await fetch(
-    `${SPOTIFY_API}/v1/users/${userId}/playlists/${playlistId}/tracks?uris=${uriEncoded}`,
+    `${SPOTIFY_API}/v1/playlists/${playlistId}/tracks?uris=${uriEncoded}`,
     {
       headers: {
         Authorization: `${tokenType} ${token}`,
@@ -120,7 +119,7 @@ async function addTrackToPlaylist(
       method: 'POST',
     }
   );
-  if (response.status === 200) {
+  if (response.status === 201) {
     const json = await response.json();
     return json;
   }
@@ -133,7 +132,7 @@ async function followPlaylist(
   token: string,
   hostId: string,
   playlistId: string
-) {
+): Promise<boolean> {
   const response = await fetch(
     `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}/followers`,
     {
@@ -145,10 +144,9 @@ async function followPlaylist(
     }
   );
   if (response.status === 200) {
-    const json = await response.json();
-    return json;
+    return true;
   }
-  return undefined;
+  return false;
 }
 
 // - API: follow a playlist, need to follow a collaboraive playlist to add a song
@@ -157,14 +155,14 @@ async function getPlaylist(
   token: string,
   hostId: string,
   playlistId: string
-) {
+): Promise<SpotifyGetPlaylistResponse.RootObject | undefined> {
   const response = await fetch(
     `${SPOTIFY_API}/v1/users/${hostId}/playlists/${playlistId}`,
     {
       headers: {
         Authorization: `${tokenType} ${token}`,
-        method: 'GET',
       },
+      method: 'GET',
     }
   );
   if (response.status === 200) {
@@ -173,12 +171,36 @@ async function getPlaylist(
   }
   return undefined;
 }
+
+async function getTracks(
+  tokenType: string,
+  token: string,
+  tracks: any[]
+): Promise<SpotifyGetTracksResponse.RootObject | undefined> {
+  const tracksToQuery = tracks.map(e => e.trackID).join(',');
+  const response = await fetch(
+    `${SPOTIFY_API}/v1/tracks/?ids=${tracksToQuery}`,
+    {
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+      },
+      method: 'Get',
+    }
+  );
+  if (response.status === 200) {
+    const json = await response.json();
+    return json;
+  }
+  return undefined;
+}
+
 export default {
   addTrackToPlaylist,
   createPlaylist,
   followPlaylist,
   getPlaylist,
   getPlaylistTracks,
+  getTracks,
   getUser,
   searchTrack,
 };

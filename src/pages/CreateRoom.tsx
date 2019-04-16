@@ -87,14 +87,18 @@ class CreateRoom extends React.Component<CreateRoomPropsInternal> {
               CreateSessionMutationVariables
             >({
               mutation: createSession,
-              variables: { sessionID: createdPlaylist.id, shortCode: short },
+              variables: {
+                hostID: createdPlaylist.owner.id,
+                sessionID: createdPlaylist.id,
+                shortCode: short,
+              },
             });
             if (data.data.createSession) {
               localStorage.setItem(
                 'graphSessionShortCode',
                 data.data.createSession.shortCode
               );
-              this.props.history.push(`/room${location.hash}`);
+              this.props.history.push(`/room`);
             }
           } catch (e) {
             const alertNotification = { ...this.state.alertNotification };

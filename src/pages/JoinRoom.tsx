@@ -89,7 +89,7 @@ class JoinRoom extends React.Component<JoinRoomPropsInternal> {
 
   public onJoinRoomBtnClick = async () => {
     if (await this.isCodeValid()) {
-      this.props.history.push(`/room/${this.state.code}${location.hash}`);
+      this.props.history.push(`/room/${this.state.code}`);
     }
   };
 
