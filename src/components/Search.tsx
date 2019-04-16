@@ -131,7 +131,7 @@ export default class Search extends React.Component<SearchProps, SearchState> {
   public displaySearch() {
     if (this.state.showDropdown) {
       return (
-        <ListGroup>
+        <ListGroup style={{ boxShadow: '5px 10px #888888' }}>
           {this.state.searchResults.map((track, i) => (
             <CreateTrackComponent>
               {createTrack => (
@@ -191,10 +191,12 @@ export default class Search extends React.Component<SearchProps, SearchState> {
             />
             <div
               style={{
+                border: '10px',
                 height: '380px',
                 margin: 'auto',
                 overflow: 'auto',
                 position: 'absolute',
+                webkitBoxShadow: '0 8px 6px 0px grey',
                 width: '81%',
                 zIndex: zindex,
               }}

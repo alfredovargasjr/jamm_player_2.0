@@ -277,11 +277,11 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                       shortCode:
                         localStorage.getItem('graphSessionShortCode') || '',
                     }}
-                    pollInterval={1000}
+                    pollInterval={10000}
                   >
                     {({ loading, error, data }) => {
                       if (error) return `Error! ${error.message}`;
-                      if (loading || !data) return 'Loading...';
+                      if (loading || !data) return <Loading height={150} />;
                       if (data.Session) {
                         if (data.Session.trackses) {
                           return (
