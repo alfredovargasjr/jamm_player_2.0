@@ -15,11 +15,9 @@ import spotifyAPIServices from '../services/spotifyAPIServices';
 
 interface TrackProps {
   track: TrackWithGID;
-  isJoiner: boolean;
   disabled: boolean;
-  animated: string;
-  mutationFn: MutationFn<any, any>;
-  handleOnClick: (
+  mutationFn?: MutationFn<any, any>;
+  handleOnClick?: (
     track: TrackWithGID,
     mutationFn?: MutationFn<any, any>
   ) => void;
@@ -27,38 +25,26 @@ interface TrackProps {
 
 interface TrackState {
   active: boolean;
-  animated: string;
 }
 
 export default class Track extends React.Component<TrackProps, TrackState> {
   public state = {
     active: false,
-    animated: '',
-  };
-
-  public animate = (animateType: 'successAnimated' | 'failureAnimated') => {
-    if (this.state.animated === '') {
-      this.setState({ animated: animateType });
-      setTimeout(() => {
-        this.setState({ animated: '' });
-      }, 1500);
-    }
   };
 
   public render() {
-    const { disabled, handleOnClick, mutationFn, track, animated } = this.props;
+    const { disabled, handleOnClick, mutationFn, track } = this.props;
     return (
       <ListGroupItem
-        className={animated}
         onMouseOver={() => this.setState({ active: true })}
         onMouseLeave={() => this.setState({ active: false })}
-        active={this.state.active}
+        active={!disabled && this.state.active}
         onClick={() => {
-          if (!disabled) {
+          if (!disabled && handleOnClick) {
             handleOnClick(track, mutationFn);
           }
         }}
-        style={{ display: 'flex', cursor: 'pointer' }}
+        style={{ display: 'flex', cursor: !disabled ? 'pointer' : '' }}
       >
         <img
           style={{

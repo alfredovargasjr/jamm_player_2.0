@@ -138,12 +138,10 @@ export default class Search extends React.Component<SearchProps, SearchState> {
             <CreateTrackComponent>
               {(createTrack, { loading, error }) => (
                 <Track
-                  isJoiner={this.props.isJoiner}
                   key={`${track.id + i}`}
                   track={track}
                   disabled={false}
                   mutationFn={createTrack}
-                  animated={this.state.animated}
                   handleOnClick={this.handleOnClick}
                 />
               )}
