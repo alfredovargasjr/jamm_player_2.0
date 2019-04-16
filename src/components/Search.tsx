@@ -23,6 +23,7 @@ interface SearchState {
 
 interface SearchProps {
   isJoiner: boolean;
+  reloadComponents: () => void;
 }
 
 export default class Search extends React.Component<SearchProps, SearchState> {
@@ -60,6 +61,7 @@ export default class Search extends React.Component<SearchProps, SearchState> {
               `"${track.name} by ${track.artists[0].name}"`,
               'Song was added to the playlist'
             );
+            this.props.reloadComponents();
             return;
           }
         } catch (ex) {

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NotificationManager } from 'react-notifications';
 import {
   Link,
   Redirect,
@@ -26,6 +27,7 @@ import {
 import Loading from '../components/Loading';
 import PlaylistTracks from '../components/PlaylistTracks';
 import Search from '../components/Search';
+import SpotifyPlaylist from '../components/SpotifyPlaylist';
 import Suggestions from '../components/Suggestions';
 import { GetSessionComponent, GetSessionQuery } from '../generated/graphql';
 import spotifyAPIServices from '../services/spotifyAPIServices';
@@ -69,13 +71,16 @@ interface RoomProps {
 interface RoomState {
   roomCode: string;
   roomData?: SpotifyGetPlaylistResponse.RootObject;
-
+  refreshCounter: number;
+  hasReloadingNotification: boolean;
   name: string;
 }
 
 class Room extends React.Component<MatchParams & RoomProps, RoomState> {
   public state: RoomState = {
+    hasReloadingNotification: false,
     name: '',
+    refreshCounter: 0,
     roomCode: '',
     roomData: undefined,
   };
@@ -110,6 +115,28 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
   public async displaySuggestions() {
     return <div />;
   }
+
+  public refreshIframePlaylist = () => {
+    if (this.state.hasReloadingNotification) {
+      return;
+    }
+
+    this.setState({
+      hasReloadingNotification: true,
+    });
+    const ms = 30000;
+    NotificationManager.info(
+      'Spotify Playlist will autoreload in 30 seconds because of a delay in the Spotify API',
+      'Reloading...',
+      ms
+    );
+    setTimeout(() => {
+      this.setState({
+        hasReloadingNotification: false,
+        refreshCounter: this.state.refreshCounter + 1,
+      });
+    }, ms);
+  };
 
   // TODO: Retrieve user and session code to display
 
@@ -168,7 +195,10 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                   }}
                 >
                   <div>
-                    <Search isJoiner={isJoiner} />
+                    <Search
+                      isJoiner={isJoiner}
+                      reloadComponents={this.refreshIframePlaylist}
+                    />
                   </div>
                   <div style={{ width: '90%', margin: 'auto' }}>
                     <GetSessionComponent
@@ -213,19 +243,16 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                   }}
                 >
                   <div>
-                    <Search isJoiner={isJoiner} />
+                    <Search
+                      isJoiner={isJoiner}
+                      reloadComponents={this.refreshIframePlaylist}
+                    />
                   </div>
                   <div style={{ width: '90%', margin: 'auto' }}>
-                    <iframe
-                      id="player"
-                      // tslint:disable-next-line: max-line-length
-                      src={`https://open.spotify.com/embed?uri=spotify:user:${
-                        this.state.roomData.owner.id
-                      }:playlist:${this.state.roomData.id}&amp;view=coverart`}
-                      width="100%"
-                      height="380"
-                      allow="encrypted-media"
-                      style={{ marginTop: '30px' }}
+                    <SpotifyPlaylist
+                      key={this.state.refreshCounter}
+                      ownerId={this.state.roomData.owner.id}
+                      playlistId={this.state.roomData.id}
                     />
                   </div>
                 </div>
