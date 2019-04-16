@@ -54,7 +54,6 @@ export default class Track extends React.Component<TrackProps, TrackState> {
         onMouseLeave={() => this.setState({ active: false })}
         active={this.state.active}
         onClick={() => {
-          console.log('click', handleOnClick);
           if (!disabled) {
             handleOnClick(track, mutationFn);
           }

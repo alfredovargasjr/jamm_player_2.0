@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { MutationFn } from 'react-apollo';
+import { NotificationManager } from 'react-notifications';
 import { Form, FormGroup, Input, ListGroup } from 'reactstrap';
 import { deleteTrackRequest } from 'src/graphQL/mutations';
 import {
@@ -9,7 +10,6 @@ import {
 } from '../generated/graphql';
 import spotifyAPIServices from '../services/spotifyAPIServices';
 import Track from './Track';
-import { NotificationManager } from 'react-notifications';
 
 interface SearchState {
   searchResults: SpotifySearchTrackResponse.Item[];
