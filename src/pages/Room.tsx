@@ -13,6 +13,7 @@ import {
   CardText,
   CardTitle,
   Col,
+  Container,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -23,7 +24,6 @@ import {
   Jumbotron,
   Label,
   Row,
-  Container,
 } from 'reactstrap';
 import Loading from '../components/Loading';
 import PlaylistTracks from '../components/PlaylistTracks';
@@ -148,9 +148,9 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
     }
     return (
       <div>
-        <Row>
+        <Row style={{ margin: '0px' }}>
           <Jumbotron style={styles.jumbotron}>
-            <div style={{ margin: 'auto', width: '90%' }}>
+            <div style={{ margin: 'auto', width: '90%', paddingBottom: '5px' }}>
               <h1
                 style={{
                   fontSize: '60px',
