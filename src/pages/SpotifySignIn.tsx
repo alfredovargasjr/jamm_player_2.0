@@ -19,6 +19,7 @@ const SpotifySignIn: React.FunctionComponent<RouteComponentProps> = props => {
     searchParmObject.redirect === 'create'
       ? `${location.origin}/createroom`
       : `${location.origin}/joinroom`;
+  localStorage.clear();
   return (
     <Container style={{ padding: '30px' }}>
       <Jumbotron style={styles.jumbotron}>
