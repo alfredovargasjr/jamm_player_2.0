@@ -36,12 +36,14 @@ export default class PlaylistTracks extends React.Component<
         hostId,
         playlistId
       );
-      if (getTracks && getTracks.items) {
-        const tracks: SpotifyGetPlaylistTracksResponse.Track[] = [];
-        getTracks.items.map((item, i) => {
-          tracks.push(item.track);
-        });
-        this.setState({ playlistTracks: tracks });
+      if (getTracks) {
+        if (getTracks.items) {
+          const tracks: SpotifyGetPlaylistTracksResponse.Track[] = [];
+          getTracks.items.map(item => {
+            tracks.push(item.track);
+          });
+          this.setState({ playlistTracks: tracks });
+        }
       }
     }
   }

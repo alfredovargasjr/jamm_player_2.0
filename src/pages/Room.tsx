@@ -277,7 +277,7 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                       shortCode:
                         localStorage.getItem('graphSessionShortCode') || '',
                     }}
-                    // pollInterval={500}
+                    pollInterval={1000}
                   >
                     {({ loading, error, data }) => {
                       if (error) return `Error! ${error.message}`;
@@ -286,8 +286,10 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                         if (data.Session.trackses) {
                           return (
                             <Suggestions
+                              key={data.Session.trackses.length}
                               isJoiner={isJoiner}
                               tracks={data.Session.trackses}
+                              reloadComponent={this.refreshIframePlaylist}
                             />
                           );
                         }

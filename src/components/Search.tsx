@@ -2,11 +2,9 @@ import * as React from 'react';
 import { MutationFn } from 'react-apollo';
 import { NotificationManager } from 'react-notifications';
 import { Form, FormGroup, Input, ListGroup } from 'reactstrap';
-import { deleteTrackRequest } from 'src/graphQL/mutations';
 import {
   CreateTrackComponent,
   CreateTrackMutation,
-  CreateTrackMutationVariables,
 } from '../generated/graphql';
 import spotifyAPIServices from '../services/spotifyAPIServices';
 import Track from './Track';
@@ -136,7 +134,7 @@ export default class Search extends React.Component<SearchProps, SearchState> {
         <ListGroup>
           {this.state.searchResults.map((track, i) => (
             <CreateTrackComponent>
-              {(createTrack, { loading, error }) => (
+              {createTrack => (
                 <Track
                   key={`${track.id + i}`}
                   track={track}
@@ -168,7 +166,7 @@ export default class Search extends React.Component<SearchProps, SearchState> {
   };
 
   public render() {
-    const zindex = this.state.showDropdown ? 100 : 0;
+    const zindex = this.state.showDropdown ? 100 : -1;
     return (
       <div ref={node => (this.node = node)}>
         <Form>

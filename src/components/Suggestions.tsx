@@ -1,8 +1,11 @@
 import * as React from 'react';
+import { MutationFn } from 'react-apollo';
+import { NotificationManager } from 'react-notifications';
 import ListGroup from 'reactstrap/lib/ListGroup';
 import Track from '../components/Track';
 import {
   DeleteTrackFromSessionComponent,
+  DeleteTrackFromSessionMutation,
   Tracks as ITrack,
 } from '../generated/graphql';
 import spotifyAPIServices from '../services/spotifyAPIServices';
@@ -10,6 +13,7 @@ import spotifyAPIServices from '../services/spotifyAPIServices';
 interface SuggestionsProps {
   tracks: ITrack[];
   isJoiner: boolean;
+  reloadComponent: () => void;
 }
 
 interface SuggestionsState {
@@ -31,7 +35,58 @@ export default class Suggestions extends React.Component<
     this.getSuggestions(tracks);
   }
 
-  public handleOnClick = async (track: TrackWithGID) => {
+  public handleOnClick = async (
+    track: TrackWithGID,
+    deleteTrackRequest?: MutationFn<any, any>
+  ) => {
+    // get the suggested playlist, add it to the playlist, remove from graph session
+    // spotify api, add track to playlist
+    const tokenType = localStorage.getItem('tokenType');
+    const accessToken = localStorage.getItem('accessToken');
+    const playlistId = localStorage.getItem('createdPlaylistId');
+    const graphId = localStorage.getItem('graphSessionId');
+    if (tokenType && accessToken && playlistId) {
+      try {
+        const resultData = await spotifyAPIServices.addTrackToPlaylist(
+          tokenType,
+          accessToken,
+          playlistId,
+          track.uri
+        );
+        if (resultData) {
+          // remove suggestion from graph session
+          if (graphId && track.gId && deleteTrackRequest) {
+            try {
+              const data: WrappedDataMutation<
+                DeleteTrackFromSessionMutation
+              > = (await deleteTrackRequest({
+                variables: { trackId: track.gId, sessionId: graphId },
+              })) as WrappedDataMutation<DeleteTrackFromSessionMutation>;
+              if (data.data.removeFromSessionOnTracks) {
+                NotificationManager.success(
+                  `"${track.name} by ${track.artists[0].name}"`,
+                  'Suggested Song was added to the playlist'
+                );
+                this.props.reloadComponent();
+                return;
+              }
+            } catch (ex) {
+              NotificationManager.error(
+                `"${track.name} by ${track.artists[0].name}"`,
+                'Suggested Song was can not be added to the playlist'
+              );
+              this.props.reloadComponent();
+              return;
+            }
+          }
+        }
+      } catch (ex) {
+        NotificationManager.error(
+          `"${track.name} by ${track.artists[0].name}"`,
+          'Song could not be added'
+        );
+      }
+    }
     return;
   };
 
@@ -75,57 +130,35 @@ export default class Suggestions extends React.Component<
         }}
       >
         <ListGroup>
+          {this.state.suggestedTracks.length < 1 ? (
+            <h3 style={{ textAlign: 'center' }}>No Suggestions</h3>
+          ) : null}
           {this.state.suggestedTracks.map((track, i) => (
-            <DeleteTrackFromSessionComponent>
-              {(deleteTrackRequest, { loading, error }) => (
+            <DeleteTrackFromSessionComponent
+            // // @ts-ignore
+            // update={(cache, { data: { deleteTrackRequest } }) => {
+            //   // @ts-ignore
+            //   const { Session } = cache.readQuery({
+            //     query: GetSessionDocument,
+            //   });
+            //   cache.writeQuery({
+            //     query: GetSessionDocument,
+            //     // tslint:disable-next-line:object-literal-sort-keys
+            //     data: { trackses: Session.trackses.filter([deleteTrackRequest]) },
+            //   });
+            // }}
+            >
+              {deleteTrackRequest => (
                 <Track
-                  isJoiner={this.props.isJoiner}
                   key={`${track.id + i}`}
                   track={track}
                   disabled={false}
                   mutationFn={deleteTrackRequest}
-                  animated={this.state.animated}
                   handleOnClick={this.handleOnClick}
                 />
               )}
             </DeleteTrackFromSessionComponent>
           ))}
-          {/* <GetSessionComponent
-            variables={{
-              shortCode: localStorage.getItem('graphSessionShortCode') || '',
-            }}
-            // pollInterval={500}
-          >
-            {({ loading, error, data }) => {
-              if (error) return `Error! ${error.message}`;
-              if (loading || !data) return 'Loading...';
-              if (data.Session) {
-                if (data.Session.trackses) {
-                  return (
-                    <Suggestions
-                      isJoiner={this.props.isJoiner}
-                      tracks={data.Session.trackses}
-                    />
-                  );
-                }
-              }
-            }}
-          </GetSessionComponent> */}
-          {/* {this.state.searchResults.map((track, i) => (
-            <CreateTrackComponent>
-              {(createTrack, { loading, error }) => (
-                <Track
-                  isJoiner={this.props.isJoiner}
-                  key={`${track.id + i}`}
-                  track={track}
-                  disabled={false}
-                  mutationFn={createTrack}
-                  animated={this.state.animated}
-                  handleOnClick={this.handleOnClick}
-                />
-              )}
-            </CreateTrackComponent>
-          ))} */}
         </ListGroup>
       </div>
     );
