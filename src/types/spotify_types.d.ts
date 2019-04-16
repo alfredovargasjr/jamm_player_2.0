@@ -556,3 +556,9 @@ declare namespace SpotifyGetTracksResponse {
 declare interface WrappedDataMutation<MutationType> {
   data: MutationType;
 }
+
+declare interface TrackWithGID extends SpotifySearchTrackResponse.Item {
+  gId?: string;
+}
+
+declare module 'react-notifications';

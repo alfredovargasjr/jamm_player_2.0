@@ -1,7 +1,15 @@
 import * as React from 'react';
+import { MutationFn } from 'react-apollo';
 import { Form, FormGroup, Input, ListGroup } from 'reactstrap';
+import { deleteTrackRequest } from 'src/graphQL/mutations';
+import {
+  CreateTrackComponent,
+  CreateTrackMutation,
+  CreateTrackMutationVariables,
+} from '../generated/graphql';
 import spotifyAPIServices from '../services/spotifyAPIServices';
 import Track from './Track';
+import { NotificationManager } from 'react-notifications';
 
 interface SearchState {
   searchResults: SpotifySearchTrackResponse.Item[];
@@ -10,6 +18,7 @@ interface SearchState {
   timeoutId: number;
   searchQuery: string;
   mouseOnComponent: boolean;
+  animated: string;
 }
 
 interface SearchProps {
@@ -18,6 +27,7 @@ interface SearchProps {
 
 export default class Search extends React.Component<SearchProps, SearchState> {
   public state: SearchState = {
+    animated: '',
     mouseOnComponent: false,
     searchQuery: '',
     searchResults: [],
@@ -26,6 +36,69 @@ export default class Search extends React.Component<SearchProps, SearchState> {
     typing: false,
   };
   public node!: HTMLDivElement | null;
+
+  public handleOnClick = async (
+    track: TrackWithGID,
+    createTrack?: MutationFn<any, any>
+  ) => {
+    // Send to playlist/suggestions
+    const graphId = localStorage.getItem('graphSessionId');
+    if (!this.props.isJoiner) {
+      const tokenType = localStorage.getItem('tokenType');
+      const accessToken = localStorage.getItem('accessToken');
+      const playlistId = localStorage.getItem('createdPlaylistId');
+      if (tokenType && accessToken && playlistId) {
+        try {
+          const resultData = await spotifyAPIServices.addTrackToPlaylist(
+            tokenType,
+            accessToken,
+            playlistId,
+            track.uri
+          );
+          if (resultData) {
+            NotificationManager.success(
+              `"${track.name} by ${track.artists[0].name}"`,
+              'Song was added to the playlist'
+            );
+            return;
+          }
+        } catch (ex) {
+          NotificationManager.error(
+            `"${track.name} by ${track.artists[0].name}"`,
+            'Song could not be added'
+          );
+        }
+      }
+      return;
+    }
+    if (graphId && track.gId && createTrack) {
+      try {
+        const data: WrappedDataMutation<
+          CreateTrackMutation
+        > = (await createTrack({
+          variables: { trackID: track.gId, sessionGID: graphId },
+        })) as WrappedDataMutation<CreateTrackMutation>;
+        if (data.data.createTracks) {
+          this.animate('successAnimated');
+          return;
+        }
+      } catch (ex) {
+        this.animate('failureAnimated');
+        return;
+      }
+    }
+    this.animate('failureAnimated');
+    return;
+  };
+
+  public animate = (animateType: 'successAnimated' | 'failureAnimated') => {
+    if (this.state.animated === '') {
+      this.setState({ animated: animateType });
+      setTimeout(() => {
+        this.setState({ animated: '' });
+      }, 1500);
+    }
+  };
 
   public handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (this.state.timeoutId) {
@@ -60,12 +133,19 @@ export default class Search extends React.Component<SearchProps, SearchState> {
       return (
         <ListGroup>
           {this.state.searchResults.map(track => (
-            <Track
-              isJoiner={this.props.isJoiner}
-              key={track.id}
-              track={track}
-              disabled={false}
-            />
+            <CreateTrackComponent>
+              {(createTrack, { loading, error }) => (
+                <Track
+                  isJoiner={this.props.isJoiner}
+                  key={track.id}
+                  track={track}
+                  disabled={false}
+                  mutationFn={createTrack}
+                  animated={this.state.animated}
+                  handleOnClick={this.handleOnClick}
+                />
+              )}
+            </CreateTrackComponent>
           ))}
         </ListGroup>
       );
@@ -88,6 +168,7 @@ export default class Search extends React.Component<SearchProps, SearchState> {
   };
 
   public render() {
+    const zindex = this.state.showDropdown ? 100 : 0;
     return (
       <div ref={node => (this.node = node)}>
         <Form>
@@ -115,10 +196,11 @@ export default class Search extends React.Component<SearchProps, SearchState> {
         <div
           style={{
             height: '380px',
-            marginLeft: '43px',
+            // marginLeft: '43px',
             overflow: 'auto',
             position: 'absolute',
-            width: '81%',
+            // width: '70%',
+            zIndex: zindex,
           }}
         >
           {this.displaySearch()}

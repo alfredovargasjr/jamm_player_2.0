@@ -51,21 +51,22 @@ export default class PlaylistTracks extends React.Component<
     return (
       <div
         style={{
-          height: '380px',
-          marginLeft: '43px',
+          height: '600px',
+          // marginLeft: '43px',
           overflow: 'auto',
-          position: 'absolute',
-          width: '81%',
+          // position: 'absolute',
+          // width: '81%',
         }}
       >
         <ListGroup>
           {this.state.playlistTracks.map((track, i) => (
-            <Track
-              isJoiner={this.props.isJoiner}
-              key={`${track.id + i}`}
-              track={track}
-              disabled={true}
-            />
+            // <Track
+            //   isJoiner={this.props.isJoiner}
+            //   key={`${track.id + i}`}
+            //   track={track}
+            //   disabled={true}
+            // />
+            <div></div>
           ))}
         </ListGroup>
       </div>

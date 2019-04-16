@@ -1430,13 +1430,19 @@ export type UserSubscriptionPayload = {
   updatedFields?: Maybe<Array<Scalars['String']>>;
   previousValues?: Maybe<UserPreviousValues>;
 };
-export type DeleteTrackRequestMutationVariables = {
-  graphID: Scalars['ID'];
+export type DeleteTrackFromSessionMutationVariables = {
+  trackId: Scalars['ID'];
+  sessionId: Scalars['ID'];
 };
 
-export type DeleteTrackRequestMutation = { __typename?: 'Mutation' } & {
-  deleteTracks: Maybe<
-    { __typename?: 'Tracks' } & Pick<Tracks, 'id' | 'trackID'>
+export type DeleteTrackFromSessionMutation = { __typename?: 'Mutation' } & {
+  removeFromSessionOnTracks: Maybe<
+    { __typename?: 'RemoveFromSessionOnTracksPayload' } & {
+      tracksesTracks: Maybe<
+        { __typename?: 'Tracks' } & Pick<Tracks, 'trackID'>
+      >;
+      sessionSession: Maybe<{ __typename?: 'Session' } & Pick<Session, 'id'>>;
+    }
   >;
 };
 
@@ -1487,62 +1493,69 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import * as ReactApollo from 'react-apollo';
 
-export const DeleteTrackRequestDocument = gql`
-  mutation deleteTrackRequest($graphID: ID!) {
-    deleteTracks(id: $graphID) {
-      id
-      trackID
+export const DeleteTrackFromSessionDocument = gql`
+  mutation deleteTrackFromSession($trackId: ID!, $sessionId: ID!) {
+    removeFromSessionOnTracks(
+      tracksesTracksId: $trackId
+      sessionSessionId: $sessionId
+    ) {
+      tracksesTracks {
+        trackID
+      }
+      sessionSession {
+        id
+      }
     }
   }
 `;
 
-export class DeleteTrackRequestComponent extends React.Component<
+export class DeleteTrackFromSessionComponent extends React.Component<
   Partial<
     ReactApollo.MutationProps<
-      DeleteTrackRequestMutation,
-      DeleteTrackRequestMutationVariables
+      DeleteTrackFromSessionMutation,
+      DeleteTrackFromSessionMutationVariables
     >
   >
 > {
   render() {
     return (
       <ReactApollo.Mutation<
-        DeleteTrackRequestMutation,
-        DeleteTrackRequestMutationVariables
+        DeleteTrackFromSessionMutation,
+        DeleteTrackFromSessionMutationVariables
       >
-        mutation={DeleteTrackRequestDocument}
+        mutation={DeleteTrackFromSessionDocument}
         {...(this as any)['props'] as any}
       />
     );
   }
 }
-export type DeleteTrackRequestProps<TChildProps = {}> = Partial<
+export type DeleteTrackFromSessionProps<TChildProps = {}> = Partial<
   ReactApollo.MutateProps<
-    DeleteTrackRequestMutation,
-    DeleteTrackRequestMutationVariables
+    DeleteTrackFromSessionMutation,
+    DeleteTrackFromSessionMutationVariables
   >
 > &
   TChildProps;
-export type DeleteTrackRequestMutationFn = ReactApollo.MutationFn<
-  DeleteTrackRequestMutation,
-  DeleteTrackRequestMutationVariables
+export type DeleteTrackFromSessionMutationFn = ReactApollo.MutationFn<
+  DeleteTrackFromSessionMutation,
+  DeleteTrackFromSessionMutationVariables
 >;
-export function withDeleteTrackRequest<TProps, TChildProps = {}>(
+export function withDeleteTrackFromSession<TProps, TChildProps = {}>(
   operationOptions:
     | ReactApollo.OperationOption<
         TProps,
-        DeleteTrackRequestMutation,
-        DeleteTrackRequestMutationVariables,
-        DeleteTrackRequestProps<TChildProps>
+        DeleteTrackFromSessionMutation,
+        DeleteTrackFromSessionMutationVariables,
+        DeleteTrackFromSessionProps<TChildProps>
       >
     | undefined
 ) {
   return ReactApollo.withMutation<
     TProps,
-    DeleteTrackRequestMutation,
-    DeleteTrackRequestMutationVariables,
-    DeleteTrackRequestProps<TChildProps>
-  >(DeleteTrackRequestDocument, operationOptions);
+    DeleteTrackFromSessionMutation,
+    DeleteTrackFromSessionMutationVariables,
+    DeleteTrackFromSessionProps<TChildProps>
+  >(DeleteTrackFromSessionDocument, operationOptions);
 }
 export const CreateSessionDocument = gql`
   mutation createSession(

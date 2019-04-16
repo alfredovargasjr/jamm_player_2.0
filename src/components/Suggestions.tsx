@@ -1,15 +1,16 @@
 import * as React from 'react';
 import ListGroup from 'reactstrap/lib/ListGroup';
 import Track from '../components/Track';
+import { Tracks as ITrack } from '../generated/graphql';
 import spotifyAPIServices from '../services/spotifyAPIServices';
 
 interface SuggestionsProps {
-  tracks: any[];
+  tracks: ITrack[];
   isJoiner: boolean;
 }
 
 interface SuggestionsState {
-  suggestedTracks: SpotifySearchTrackResponse.Item[];
+  suggestedTracks: TrackWithGID[];
 }
 
 export default class Suggestions extends React.Component<
@@ -26,7 +27,7 @@ export default class Suggestions extends React.Component<
   }
 
   public async getSuggestions(
-    tracks: any[]
+    tracks: ITrack[]
   ): Promise<SpotifySearchTrackResponse.Item[]> {
     const tokenType = localStorage.getItem('tokenType');
     const accessToken = localStorage.getItem('accessToken');
@@ -36,10 +37,18 @@ export default class Suggestions extends React.Component<
         accessToken,
         tracks
       );
-      if (getTracks) {
-        if (getTracks.tracks) {
-          this.setState({ suggestedTracks: getTracks.tracks });
-        }
+      if (getTracks && getTracks.tracks) {
+        this.setState({
+          suggestedTracks: getTracks.tracks.map(track => {
+            const foundTrack = tracks.find(
+              element => element.trackID === track.id
+            );
+            return {
+              ...track,
+              gId: foundTrack ? foundTrack.id : '',
+            };
+          }),
+        });
       }
     }
     return [];
@@ -58,12 +67,13 @@ export default class Suggestions extends React.Component<
       >
         <ListGroup>
           {this.state.suggestedTracks.map((track, i) => (
-            <Track
-              isJoiner={this.props.isJoiner}
-              key={`${track.id + i}`}
-              track={track}
-              disabled={false}
-            />
+            // <Track
+            //   isJoiner={this.props.isJoiner}
+            //   key={`${track.id + i}`}
+            //   track={track}
+            //   disabled={false}
+            // />
+            <div />
           ))}
         </ListGroup>
       </div>

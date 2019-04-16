@@ -1,10 +1,17 @@
 import gql from 'graphql-tag';
 
 export const deleteTrackRequest = gql`
-  mutation deleteTrackRequest($graphID: ID!) {
-    deleteTracks(id: $graphID) {
-      id
-      trackID
+  mutation deleteTrackFromSession($trackId: ID!, $sessionId: ID!) {
+    removeFromSessionOnTracks(
+      tracksesTracksId: $trackId
+      sessionSessionId: $sessionId
+    ) {
+      tracksesTracks {
+        trackID
+      }
+      sessionSession {
+        id
+      }
     }
   }
 `;

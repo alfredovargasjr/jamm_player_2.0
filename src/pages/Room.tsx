@@ -50,7 +50,6 @@ const RoomParent: React.FunctionComponent<
         if (error) return `Error! ${error.message}`;
         if (loading || !data) return 'Loading...';
         if (data.Session) {
-          console.log(data);
           localStorage.setItem('graphSessionId', data.Session.id);
           if (!props.match.params.code) {
             return <Room session={data} />;
@@ -103,7 +102,6 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
       );
       if (playlistData) {
         this.setState({ roomData: playlistData });
-        console.log(this.state.roomData);
       }
     }
   }
@@ -178,12 +176,11 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                         shortCode:
                           localStorage.getItem('graphSessionShortCode') || '',
                       }}
-                      // pollInterval={500}
+                      pollInterval={500}
                     >
                       {({ loading, error, data }) => {
                         if (error) return `Error! ${error.message}`;
                         if (loading || !data) return 'Loading...';
-                        console.log(data);
                         if (data.Session) {
                           const playlistId = data.Session.sessionID;
                           const hostId = data.Session.hostID;
@@ -256,7 +253,6 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                     {({ loading, error, data }) => {
                       if (error) return `Error! ${error.message}`;
                       if (loading || !data) return 'Loading...';
-                      console.log(data);
                       if (data.Session) {
                         if (data.Session.trackses) {
                           return (
