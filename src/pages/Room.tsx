@@ -198,7 +198,9 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                   <GetSessionComponent
                     variables={{
                       shortCode:
-                        localStorage.getItem('graphSessionShortCode') || '',
+                        localStorage.getItem('graphSessionShortCode') ||
+                        this.props.code ||
+                        '',
                     }}
                     pollInterval={10000}
                   >
@@ -208,9 +210,10 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                       if (data.Session) {
                         const playlistId = data.Session.sessionID;
                         const hostId = data.Session.hostID;
-                        if (playlistId && hostId) {
+                        if (playlistId && hostId && data.Session.trackses) {
                           return (
                             <PlaylistTracks
+                              key={data.Session.trackses.length}
                               isJoiner={isJoiner}
                               playlistId={playlistId}
                               hostId={hostId}
@@ -218,7 +221,7 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                           );
                         }
                       }
-                      return <Loading />;
+                      return <h2>No Data.</h2>;
                     }}
                   </GetSessionComponent>
                 </div>
