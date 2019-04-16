@@ -71,7 +71,6 @@ export default class Search extends React.Component<SearchProps, SearchState> {
       }
       return;
     }
-    console.log('start graph', graphId, track.id, createTrack);
     if (graphId && track.id && createTrack) {
       try {
         const data: WrappedDataMutation<
@@ -99,15 +98,6 @@ export default class Search extends React.Component<SearchProps, SearchState> {
       'Error in suggesting the song to the playlist'
     );
     return;
-  };
-
-  public animate = (animateType: 'successAnimated' | 'failureAnimated') => {
-    if (this.state.animated === '') {
-      this.setState({ animated: animateType });
-      setTimeout(() => {
-        this.setState({ animated: '' });
-      }, 1500);
-    }
   };
 
   public handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {

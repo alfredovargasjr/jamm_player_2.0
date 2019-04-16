@@ -1,7 +1,10 @@
 import * as React from 'react';
 import ListGroup from 'reactstrap/lib/ListGroup';
 import Track from '../components/Track';
-import { Tracks as ITrack } from '../generated/graphql';
+import {
+  DeleteTrackFromSessionComponent,
+  Tracks as ITrack,
+} from '../generated/graphql';
 import spotifyAPIServices from '../services/spotifyAPIServices';
 
 interface SuggestionsProps {
@@ -11,6 +14,7 @@ interface SuggestionsProps {
 
 interface SuggestionsState {
   suggestedTracks: TrackWithGID[];
+  animated: string;
 }
 
 export default class Suggestions extends React.Component<
@@ -18,6 +22,7 @@ export default class Suggestions extends React.Component<
   SuggestionsState
 > {
   public state: SuggestionsState = {
+    animated: '',
     suggestedTracks: [],
   };
 
@@ -25,6 +30,10 @@ export default class Suggestions extends React.Component<
     const { tracks } = this.props;
     this.getSuggestions(tracks);
   }
+
+  public handleOnClick = async (track: TrackWithGID) => {
+    return;
+  };
 
   public async getSuggestions(
     tracks: ITrack[]
@@ -67,14 +76,56 @@ export default class Suggestions extends React.Component<
       >
         <ListGroup>
           {this.state.suggestedTracks.map((track, i) => (
-            // <Track
-            //   isJoiner={this.props.isJoiner}
-            //   key={`${track.id + i}`}
-            //   track={track}
-            //   disabled={false}
-            // />
-            <div />
+            <DeleteTrackFromSessionComponent>
+              {(deleteTrackRequest, { loading, error }) => (
+                <Track
+                  isJoiner={this.props.isJoiner}
+                  key={`${track.id + i}`}
+                  track={track}
+                  disabled={false}
+                  mutationFn={deleteTrackRequest}
+                  animated={this.state.animated}
+                  handleOnClick={this.handleOnClick}
+                />
+              )}
+            </DeleteTrackFromSessionComponent>
           ))}
+          {/* <GetSessionComponent
+            variables={{
+              shortCode: localStorage.getItem('graphSessionShortCode') || '',
+            }}
+            // pollInterval={500}
+          >
+            {({ loading, error, data }) => {
+              if (error) return `Error! ${error.message}`;
+              if (loading || !data) return 'Loading...';
+              if (data.Session) {
+                if (data.Session.trackses) {
+                  return (
+                    <Suggestions
+                      isJoiner={this.props.isJoiner}
+                      tracks={data.Session.trackses}
+                    />
+                  );
+                }
+              }
+            }}
+          </GetSessionComponent> */}
+          {/* {this.state.searchResults.map((track, i) => (
+            <CreateTrackComponent>
+              {(createTrack, { loading, error }) => (
+                <Track
+                  isJoiner={this.props.isJoiner}
+                  key={`${track.id + i}`}
+                  track={track}
+                  disabled={false}
+                  mutationFn={createTrack}
+                  animated={this.state.animated}
+                  handleOnClick={this.handleOnClick}
+                />
+              )}
+            </CreateTrackComponent>
+          ))} */}
         </ListGroup>
       </div>
     );
