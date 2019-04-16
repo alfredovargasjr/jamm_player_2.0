@@ -153,6 +153,7 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
               style={{
                 fontSize: '60px',
                 marginBottom: '0px',
+                marginLeft: '83px',
                 textAlign: 'left',
               }}
             >
@@ -163,6 +164,7 @@ class Room extends React.Component<MatchParams & RoomProps, RoomState> {
                 color: 'white',
                 fontSize: '13px',
                 margin: '0px',
+                marginLeft: '88px',
                 textAlign: 'left',
               }}
             >
