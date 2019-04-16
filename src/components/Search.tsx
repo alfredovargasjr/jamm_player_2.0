@@ -71,23 +71,33 @@ export default class Search extends React.Component<SearchProps, SearchState> {
       }
       return;
     }
-    if (graphId && track.gId && createTrack) {
+    console.log('start graph', graphId, track.id, createTrack);
+    if (graphId && track.id && createTrack) {
       try {
         const data: WrappedDataMutation<
           CreateTrackMutation
         > = (await createTrack({
-          variables: { trackID: track.gId, sessionGID: graphId },
+          variables: { trackID: track.id, sessionGID: graphId },
         })) as WrappedDataMutation<CreateTrackMutation>;
         if (data.data.createTracks) {
-          this.animate('successAnimated');
+          NotificationManager.success(
+            `"${track.name} by ${track.artists[0].name}"`,
+            'Song was suggested to the playlist'
+          );
           return;
         }
       } catch (ex) {
-        this.animate('failureAnimated');
+        NotificationManager.error(
+          `"${track.name} by ${track.artists[0].name}"`,
+          'Song was can not be suggested to the playlist'
+        );
         return;
       }
     }
-    this.animate('failureAnimated');
+    NotificationManager.error(
+      `"${track.name} by ${track.artists[0].name}"`,
+      'Error in suggesting the song to the playlist'
+    );
     return;
   };
 
@@ -132,12 +142,12 @@ export default class Search extends React.Component<SearchProps, SearchState> {
     if (this.state.showDropdown) {
       return (
         <ListGroup>
-          {this.state.searchResults.map(track => (
+          {this.state.searchResults.map((track, i) => (
             <CreateTrackComponent>
               {(createTrack, { loading, error }) => (
                 <Track
                   isJoiner={this.props.isJoiner}
-                  key={track.id}
+                  key={`${track.id + i}`}
                   track={track}
                   disabled={false}
                   mutationFn={createTrack}
